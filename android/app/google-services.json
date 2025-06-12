@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "66873613449",
+    "project_id": "trendy-shop-fca78",
+    "storage_bucket": "trendy-shop-fca78.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:66873613449:android:c7d7c8b9b5bfc9db247a58",
+        "android_client_info": {
+          "package_name": "com.example.shop_trendy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "66873613449-06v27vji4gpqnm8i0il7i3gklhonjt7m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.shop_trendy",
+            "certificate_hash": "8a4a2c4c49a3a255994bb53fa305741b4536a9d9"
+          }
+        },
+        {
+          "client_id": "66873613449-rd3oe32nmb50ok1pe37oo39u9985c6em.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKybSg6CxjhE_mc5CwpMffwC3orI-tHkg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "66873613449-rd3oe32nmb50ok1pe37oo39u9985c6em.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "66873613449-pb6piutrmbhe4e86si2f90tlh2p4ohmm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.shopTrendy"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
