@@ -40,7 +40,7 @@ void main() {
     rating: Rating(rate: 4.0, count: 50),
   );
 
-  // New test data for pagination
+  // test data for pagination
   final List<Product> tProductsPage1 = List.generate(10, (index) => Product(
     id: index + 1,
     title: 'Product ${index + 1}',
@@ -106,14 +106,14 @@ void main() {
       build: () {
         when(mockFetchProductDetails(1)).thenAnswer((_) async => tProduct);
         when(mockFetchProductsByCategory(tProduct.category))
-            .thenAnswer((_) async => [tProduct, tProduct2]); // Return related, including self
+            .thenAnswer((_) async => [tProduct, tProduct2]);
         return productCubit;
       },
       act: (cubit) => cubit.fetchProductDetails(1),
       expect: () => [
         ProductLoading(),
         ProductDetailLoaded(
-            product: tProduct, relatedProducts: [tProduct2]), // Self removed
+            product: tProduct, relatedProducts: [tProduct2]),
       ],
       verify: (_) {
         verify(mockFetchProductDetails(1)).called(1);
@@ -151,7 +151,7 @@ void main() {
         ProductLoaded(products: tProductsPage1, hasMore: true), // Reflects hasMore based on tProductsPage1 length
       ],
       verify: (cubit) {
-        // Now, after fetchAllProducts has run, the internal _currentProducts should be populated
+        // after fetchAllProducts has run, the internal _currentProducts should be populated
         expect(cubit.currentProducts, tProductsPage1);
       },
     );
