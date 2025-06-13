@@ -88,6 +88,7 @@ dev_dependencies:
   # Code Generation
   build_runner: ^2.4.9
   freezed: ^2.5.2
+  bloc_test: ^9.1.4
   json_serializable: ^6.8.0
   injectable_generator: ^2.6.1
   mockito: ^5.4.4 # Add mockito for Dio testing
