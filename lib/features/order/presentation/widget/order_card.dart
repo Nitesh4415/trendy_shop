@@ -108,7 +108,7 @@ class _OrderCardState extends State<OrderCard> {
                   ),
                 ),
               );
-            }).toList(),
+            }),
             const Divider(height: 20),
             Align(
               alignment: Alignment.centerRight,

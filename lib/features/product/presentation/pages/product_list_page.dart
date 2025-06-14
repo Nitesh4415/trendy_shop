@@ -22,25 +22,51 @@ class _ProductListPageState extends State<ProductListPage> {
   void initState() {
     super.initState();
     final productCubit = context.read<ProductCubit>();
-    // Fetch products only if the cached list is empty.
     if (productCubit.currentProducts.isEmpty) {
       productCubit.fetchAllProducts(isInitialLoad: true);
     }
-
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 200 && // Trigger a bit before the end
-          !productCubit.isLoadingMore &&
-          productCubit.hasMoreProducts) {
-        productCubit.fetchAllProducts(isInitialLoad: false);
-      }
-    });
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadMoreProducts() async {
+    final productCubit = context.read<ProductCubit>();
+    if (productCubit.isLoadingMore || !productCubit.hasMoreProducts) return;
+
+    // --- FIX: Capture the scroll position BEFORE loading new items ---
+    // This is the key to scrolling to the next page, not the absolute end.
+    final oldMaxScrollExtent = _scrollController.position.maxScrollExtent;
+
+    final newItemsLoaded = await productCubit.fetchAllProducts();
+
+    if (newItemsLoaded && mounted) {
+      // Add a short delay to allow the GridView to build the new items.
+      Future.delayed(const Duration(milliseconds: 150), () {
+        if (mounted) {
+          _scrollController.animateTo(
+            // Animate to the position that WAS the end of the list.
+            // This will reveal the new page of items.
+            oldMaxScrollExtent,
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+  }
+
+  void _onScroll() {
+    // Trigger loading when the user is near the bottom of the list.
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 300) {
+      _loadMoreProducts();
+    }
   }
 
   @override
@@ -52,15 +78,11 @@ class _ProductListPageState extends State<ProductListPage> {
           const AnimatedShoppingCartButton(),
           IconButton(
             icon: const Icon(Icons.history),
-            onPressed: () {
-              context.go('/orders');
-            },
+            onPressed: () => context.go('/orders'),
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              context.read<AuthCubit>().signOut();
-            },
+            onPressed: () => context.read<AuthCubit>().signOut(),
           ),
         ],
       ),
@@ -77,7 +99,7 @@ class _ProductListPageState extends State<ProductListPage> {
         builder: (context, state) {
           final productCubit = context.read<ProductCubit>();
           final products = productCubit.currentProducts;
-          final isLoadingMore = state is ProductLoadingMore;
+          final isLoadingMore = productCubit.isLoadingMore;
 
           if (state is ProductLoading && products.isEmpty) {
             return const Center(child: CircularProgressIndicator());
@@ -90,7 +112,8 @@ class _ProductListPageState extends State<ProductListPage> {
                 children: [
                   Text('Failed to load products: ${state.message}'),
                   ElevatedButton(
-                    onPressed: () => productCubit.fetchAllProducts(isInitialLoad: true),
+                    onPressed: () =>
+                        productCubit.fetchAllProducts(isInitialLoad: true),
                     child: const Text('Retry'),
                   ),
                 ],
@@ -98,14 +121,15 @@ class _ProductListPageState extends State<ProductListPage> {
             );
           }
 
-          if (products.isEmpty) {
+          if (products.isEmpty && !isLoadingMore && state is! ProductLoading) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text('No products found.'),
                   ElevatedButton(
-                    onPressed: () => productCubit.fetchAllProducts(isInitialLoad: true),
+                    onPressed: () =>
+                        productCubit.fetchAllProducts(isInitialLoad: true),
                     child: const Text('Reload'),
                   ),
                 ],
@@ -130,14 +154,16 @@ class _ProductListPageState extends State<ProductListPage> {
                     if (index < products.length) {
                       return ProductCard(product: products[index]);
                     } else {
+                      // This is the loading indicator at the bottom.
                       return const Center(child: CircularProgressIndicator());
                     }
                   },
                 ),
               ),
+              // The "Load More" button is a fallback for users who don't scroll.
               if (productCubit.hasMoreProducts && !isLoadingMore)
                 CustomPaginationControls(
-                  onLoadMore: () => productCubit.fetchAllProducts(isInitialLoad: false),
+                  onLoadMore: _loadMoreProducts,
                 ),
             ],
           );

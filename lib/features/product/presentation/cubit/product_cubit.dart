@@ -47,11 +47,24 @@ class ProductCubit extends Cubit<ProductState> {
     return false;
   }
 
-  Future<void> fetchAllProducts({bool isInitialLoad = false}) async {
-    if (_isLoadingMore) return;
+  // --- FIX: Method now returns a boolean to signal the UI to scroll ---
+  // In your UI (ProductListPage), you can now do:
+  // final newItemsLoaded = await context.read<ProductCubit>().fetchAllProducts();
+  // if (newItemsLoaded) {
+  //   // Add a short delay to allow the list to build
+  //   Future.delayed(const Duration(milliseconds: 100), () {
+  //     _scrollController.animateTo(
+  //       _scrollController.position.maxScrollExtent,
+  //       duration: const Duration(milliseconds: 300),
+  //       curve: Curves.easeOut,
+  //     );
+  //   });
+  // }
+  Future<bool> fetchAllProducts({bool isInitialLoad = false}) async {
+    if (_isLoadingMore) return false;
 
     final currentState = state;
-    if (currentState is ProductLoaded && !currentState.hasMore && !isInitialLoad) return;
+    if (currentState is ProductLoaded && !currentState.hasMore && !isInitialLoad) return false;
 
     _isLoadingMore = true;
 
@@ -89,9 +102,9 @@ class ProductCubit extends Cubit<ProductState> {
 
       // Determine how many new items to add for the next "page".
       final nextPageSize = remaining > _productsPerPage ? _productsPerPage : remaining;
-
+      List<Product> newItems = [];
       if (nextPageSize > 0) {
-        final newItems = _allFetchedProducts.sublist(currentLength, currentLength + nextPageSize);
+        newItems = _allFetchedProducts.sublist(currentLength, currentLength + nextPageSize);
         productsToShow.addAll(newItems);
       }
 
@@ -99,8 +112,13 @@ class ProductCubit extends Cubit<ProductState> {
       final hasMore = productsToShow.length < _allFetchedProducts.length;
 
       emit(ProductLoaded(products: List.from(productsToShow), hasMore: hasMore));
+
+      // Return true if we successfully added new items to the list.
+      return newItems.isNotEmpty;
+
     } catch (e) {
       emit(ProductError(e.toString()));
+      return false;
     } finally {
       _isLoadingMore = false;
     }
