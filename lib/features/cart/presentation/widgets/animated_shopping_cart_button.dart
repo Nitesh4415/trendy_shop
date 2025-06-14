@@ -22,7 +22,7 @@ class AnimatedShoppingCartButton extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.shopping_cart),
               onPressed: () {
-                context.go('/cart');
+                context.push('/cart');
               },
             ),
             if (itemCount > 0)

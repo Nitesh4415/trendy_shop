@@ -1,4 +1,3 @@
-// features/cart/presentation/pages/cart_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -6,9 +5,8 @@ import 'package:shop_trendy/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:shop_trendy/features/cart/domain/entities/cart_item.dart';
 import 'package:shop_trendy/features/order/domain/entities/order.dart' as app_order; // Alias for Order entity
 import 'package:shop_trendy/features/auth/presentation/cubit/auth_cubit.dart';
-
-import '../../../order/domain/entities/product_order.dart';
-import '../../../order/presentation/cubit/order_cubit/order_cubit.dart'; // Import AuthCubit to get appUser ID
+import 'package:shop_trendy/features/order/domain/entities/product_order.dart';
+import 'package:shop_trendy/features/order/presentation/cubit/order_cubit/order_cubit.dart'; // Import AuthCubit to get appUser ID
 
 
 class CartPage extends StatelessWidget {
@@ -35,6 +33,7 @@ class CartPage extends StatelessWidget {
               const SnackBar(
                   content: Text('Payment successful! Order placed.')),
             );
+            // The OrderCubit state is already updated, so we just navigate.
             context.go(
                 '/orders'); // Navigate to order list after success
           }
@@ -176,7 +175,7 @@ class CartPage extends StatelessWidget {
   Future<void> _handleCheckout(BuildContext context, List<CartItem> cartItems) async {
     final authState = context.read<AuthCubit>().state;
     if (authState is AuthAuthenticated) {
-      final userId = authState.appUser.id; // Get the FakeStoreAPI user ID
+      final userId = authState.appUser.id; // Get the user ID
 
       if (userId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -185,7 +184,6 @@ class CartPage extends StatelessWidget {
         return;
       }
 
-      // Convert CartItems to ProductInOrder for the Order entity
       final productsInOrder = cartItems.map((cartItem) => ProductInOrder(
         productId: cartItem.product.id,
         quantity: cartItem.quantity,
@@ -197,19 +195,31 @@ class CartPage extends StatelessWidget {
         products: productsInOrder,
       );
 
-      // Attempt to place the order
-      context.read<OrderCubit>().createOrder(newOrder).then((_) {
-        // If order placement is successful (handled by OrderCubit listener)
-        // then proceed with Stripe payment.
-        context.read<CartCubit>().initiatePayment(
-          context.read<CartCubit>().cartTotalPrice,
-          'usd', // Assuming USD as currency
-        );
-      }).catchError((e) {
+      final orderCubit = context.read<OrderCubit>();
+      final cartCubit = context.read<CartCubit>();
+
+      try {
+        // Step 1: Create the order in your backend. This updates the OrderCubit state.
+        await orderCubit.createOrder(newOrder);
+
+        // Step 2: If order creation was successful, proceed to payment.
+        if (orderCubit.state is OrderAllLoaded) {
+          await cartCubit.initiatePayment(
+            cartCubit.cartTotalPrice,
+            'usd', // Assuming USD as currency
+          );
+          // The listener for CartPaymentSuccess will handle navigation.
+        } else if (orderCubit.state is OrderError) {
+          final errorMessage = (orderCubit.state as OrderError).message;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to create order: $errorMessage')),
+          );
+        }
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to place order: ${e.toString()}')),
+          SnackBar(content: Text('An unexpected error occurred: ${e.toString()}')),
         );
-      });
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please log in to proceed with checkout.')),

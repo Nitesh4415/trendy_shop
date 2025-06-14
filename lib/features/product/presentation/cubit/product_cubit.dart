@@ -14,53 +14,91 @@ class ProductCubit extends Cubit<ProductState> {
   final GetProductDetailsUseCase _getProductDetails;
   final GetProductsByCategoryUseCase _getProductsByCategory;
 
-  static const int _productsPerPage = 6; // Define pagination limit
+  static const int _productsPerPage = 6;
 
-  List<Product> _allProducts =
-      []; // Local cache for all products fetched so far
-  bool _isLoadingMore =
-      false; // To prevent multiple simultaneous pagination calls
-  bool _hasMoreProducts = true; // To track if there are more products to load
+  // This will store all products fetched from the API one time.
+  List<Product> _allFetchedProducts = [];
+  bool _isLoadingMore = false;
+
+  // Cache for restoring product list state
+  List<Product> _lastKnownProductList = [];
+  bool _lastKnownHasMore = true;
+
 
   ProductCubit(
-    this._getAllProducts,
-    this._getProductDetails,
-    this._getProductsByCategory,
-  ) : super(ProductInitial());
+      this._getAllProducts,
+      this._getProductDetails,
+      this._getProductsByCategory,
+      ) : super(ProductInitial());
 
   bool get isLoadingMore => _isLoadingMore;
-  bool get hasMoreProducts => _hasMoreProducts;
-  List<Product> get currentProducts =>
-      _allProducts; // New getter for current products
 
-  Future<void> fetchAllProducts({bool isInitialLoad = true}) async {
-    if (_isLoadingMore || (!_hasMoreProducts && !isInitialLoad)) return;
+  List<Product> get currentProducts {
+    final s = state;
+    if (s is ProductLoaded) return s.products;
+    if (s is ProductLoadingMore) return s.products;
+    return [];
+  }
+
+  bool get hasMoreProducts {
+    final s = state;
+    if (s is ProductLoaded) return s.hasMore;
+    if (s is ProductLoadingMore) return true;
+    return false;
+  }
+
+  Future<void> fetchAllProducts({bool isInitialLoad = false}) async {
+    if (_isLoadingMore) return;
+
+    final currentState = state;
+    if (currentState is ProductLoaded && !currentState.hasMore && !isInitialLoad) return;
 
     _isLoadingMore = true;
-    if (isInitialLoad) {
-      emit(ProductLoading());
-      _allProducts = []; // Clear products on initial load
-      _hasMoreProducts = true; // Reset hasMoreProducts for a fresh start
-    } else {
-      emit(
-        ProductLoadingMore(products: _allProducts),
-      ); // Show loading for more products
-    }
 
     try {
-      final newProducts = await _getAllProducts(
-        limit: _productsPerPage,
-        sort: 'asc',
-        skip:
-            _allProducts.length, // Pass the current count as skip for next page
-      );
-
-      if (newProducts.isEmpty || newProducts.length < _productsPerPage) {
-        _hasMoreProducts = false; // No more products to load
+      // Step 1: Fetch ALL products from the API, but only once.
+      if (_allFetchedProducts.isEmpty) {
+        emit(ProductLoading()); // Full screen loader only for the very first time.
+        // Call the use case without pagination parameters.
+        _allFetchedProducts = await _getAllProducts();
       }
 
-      _allProducts.addAll(newProducts);
-      emit(ProductLoaded(products: _allProducts, hasMore: _hasMoreProducts));
+      // Step 2: Implement local pagination from the cached list.
+      List<Product> productsToShow = [];
+      if (currentState is ProductLoaded) {
+        productsToShow = List.from(currentState.products);
+      } else if (currentState is ProductLoadingMore) {
+        productsToShow = List.from(currentState.products);
+      }
+
+      // On initial load, start with an empty list to build upon.
+      if(isInitialLoad){
+        productsToShow = [];
+      }
+
+
+      // Show loading more indicator for pagination
+      if (!isInitialLoad) {
+        emit(ProductLoadingMore(products: productsToShow));
+        // Add a small delay to allow the UI to show the loading indicator
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+
+      final currentLength = productsToShow.length;
+      final remaining = _allFetchedProducts.length - currentLength;
+
+      // Determine how many new items to add for the next "page".
+      final nextPageSize = remaining > _productsPerPage ? _productsPerPage : remaining;
+
+      if (nextPageSize > 0) {
+        final newItems = _allFetchedProducts.sublist(currentLength, currentLength + nextPageSize);
+        productsToShow.addAll(newItems);
+      }
+
+      // Check if there are still more items to load in subsequent pages.
+      final hasMore = productsToShow.length < _allFetchedProducts.length;
+
+      emit(ProductLoaded(products: List.from(productsToShow), hasMore: hasMore));
     } catch (e) {
       emit(ProductError(e.toString()));
     } finally {
@@ -68,29 +106,42 @@ class ProductCubit extends Cubit<ProductState> {
     }
   }
 
+  void restoreProductListState() {
+    if (_lastKnownProductList.isNotEmpty) {
+      emit(ProductLoaded(products: List.from(_lastKnownProductList), hasMore: _lastKnownHasMore));
+    } else {
+      fetchAllProducts(isInitialLoad: true);
+    }
+  }
+
   Future<void> fetchProductDetails(int id) async {
+    // Cache the current product list before changing state
+    final currentState = state;
+    if (currentState is ProductLoaded) {
+      _lastKnownProductList = currentState.products;
+      _lastKnownHasMore = currentState.hasMore;
+    }
+
+    // --- FIX: Emit loading state immediately ---
+    // This tells the detail page to show a loading indicator right away.
     emit(ProductLoading());
+
     try {
       final product = await _getProductDetails(id);
       List<Product> relatedProducts = [];
       if (product.category.isNotEmpty) {
         relatedProducts = await _getProductsByCategory(product.category);
-        // Filter out the current product from related products list
         relatedProducts.removeWhere((p) => p.id == product.id);
         if (relatedProducts.length > 4) {
           relatedProducts = relatedProducts.sublist(0, 5);
         }
       }
-      emit(
-        ProductDetailLoaded(product: product, relatedProducts: relatedProducts),
-      ); // Pass related products
+      emit(ProductDetailLoaded(product: product, relatedProducts: relatedProducts));
     } catch (e) {
       emit(ProductError(e.toString()));
     }
   }
 
-  // Internal method for fetching product details without changing cubit state
-  // Useful for other cubits/pages that need product data but don't drive main product state
   Future<Product> fetchProductDetailsInternal(int id) async {
     return await _getProductDetails(id);
   }

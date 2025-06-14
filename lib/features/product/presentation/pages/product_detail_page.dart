@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shop_trendy/features/cart/domain/entities/cart_item.dart';
+import 'package:shop_trendy/features/cart/presentation/cubit/cart_cubit.dart';
+import 'package:shop_trendy/features/cart/presentation/widgets/animated_shopping_cart_button.dart'; // Import your button
 import 'package:shop_trendy/features/product/presentation/cubit/product_cubit.dart';
 import 'package:shop_trendy/features/product/presentation/widgets/product_carousel.dart';
-import 'package:shop_trendy/features/cart/presentation/cubit/cart_cubit.dart';
-import 'package:shop_trendy/features/cart/domain/entities/cart_item.dart';
-import 'package:uuid/uuid.dart'; // For generating UUID for cart item
+import 'package:uuid/uuid.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final int productId;
@@ -29,21 +30,24 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         title: const Text('Product Details'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          // --- SOLUTION FOR ISSUE 2 (Part 2) ---
+          // When navigating back, restore the previous state in the cubit.
+          onPressed: () {
+            context.read<ProductCubit>().restoreProductListState();
+            context.pop();
+          },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart),
-            onPressed: () => context.go('/cart'),
-          ),
+        actions: const [
+          // --- SOLUTION FOR ISSUE 1 ---
+          // Use your existing animated widget. It will update automatically.
+          AnimatedShoppingCartButton(),
         ],
       ),
       body: BlocConsumer<ProductCubit, ProductState>(
         listener: (context, state) {
           if (state is ProductError) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         builder: (context, state) {
@@ -53,7 +57,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             final product = state.product;
             final relatedProducts = state.relatedProducts
                 .where((p) => p.id != product.id)
-                .take(4) // Limit related products for display
+                .take(4)
                 .toList();
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
@@ -62,13 +66,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 children: [
                   Center(
                     child: Hero(
-                      tag: 'product-${product.id}', // Hero animation tag
+                      tag: 'product-${product.id}',
                       child: Image.network(
                         product.image,
                         height: 250,
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.broken_image, size: 100),
+                        const Icon(Icons.broken_image, size: 100),
                       ),
                     ),
                   ),
@@ -109,11 +113,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        // Generate a unique ID for the cart item
                         const Uuid uuid = Uuid();
                         context.read<CartCubit>().addItemToCart(
                           CartItem(
-                            id: uuid.v4(), // Use UUID for unique persistent ID
+                            id: uuid.v4(),
                             product: product,
                             quantity: 1,
                           ),
@@ -136,7 +139,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  // Product Carousel for "Related Items"
                   const Text(
                     'Related Products',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -147,6 +149,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               ),
             );
           }
+          // Fallback view in case the state is not ProductDetailLoaded
           return const Center(child: Text('Product not found.'));
         },
       ),
