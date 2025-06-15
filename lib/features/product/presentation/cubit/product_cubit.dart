@@ -47,19 +47,6 @@ class ProductCubit extends Cubit<ProductState> {
     return false;
   }
 
-  // --- FIX: Method now returns a boolean to signal the UI to scroll ---
-  // In your UI (ProductListPage), you can now do:
-  // final newItemsLoaded = await context.read<ProductCubit>().fetchAllProducts();
-  // if (newItemsLoaded) {
-  //   // Add a short delay to allow the list to build
-  //   Future.delayed(const Duration(milliseconds: 100), () {
-  //     _scrollController.animateTo(
-  //       _scrollController.position.maxScrollExtent,
-  //       duration: const Duration(milliseconds: 300),
-  //       curve: Curves.easeOut,
-  //     );
-  //   });
-  // }
   Future<bool> fetchAllProducts({bool isInitialLoad = false}) async {
     if (_isLoadingMore) return false;
 
@@ -69,14 +56,13 @@ class ProductCubit extends Cubit<ProductState> {
     _isLoadingMore = true;
 
     try {
-      // Step 1: Fetch ALL products from the API, but only once.
       if (_allFetchedProducts.isEmpty) {
         emit(ProductLoading()); // Full screen loader only for the very first time.
         // Call the use case without pagination parameters.
         _allFetchedProducts = await _getAllProducts();
       }
 
-      // Step 2: Implement local pagination from the cached list.
+      // Implement local pagination from the cached list.
       List<Product> productsToShow = [];
       if (currentState is ProductLoaded) {
         productsToShow = List.from(currentState.products);
@@ -140,8 +126,6 @@ class ProductCubit extends Cubit<ProductState> {
       _lastKnownHasMore = currentState.hasMore;
     }
 
-    // --- FIX: Emit loading state immediately ---
-    // This tells the detail page to show a loading indicator right away.
     emit(ProductLoading());
 
     try {

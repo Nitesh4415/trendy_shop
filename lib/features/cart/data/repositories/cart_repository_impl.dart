@@ -12,29 +12,29 @@ class CartRepositoryImpl implements CartRepository {
   CartRepositoryImpl(this._localDataSource);
 
   @override
-  Future<void> addToCart(CartItem item) async {
+  Future<void> addToCart(CartItem item,String emailId) async {
     try {
       // Convert domain entity to data model for passing to data source
-      await _localDataSource.saveCartItem(item);
+      await _localDataSource.saveCartItem(item, emailId);
     } catch (e) {
       rethrow;
     }
   }
 
   @override
-  Future<void> clearCart() async {
+  Future<void> clearCart(String emailId) async {
     try {
-      await _localDataSource.clearCart();
+      await _localDataSource.clearCart(emailId);
     } catch (e) {
       rethrow;
     }
   }
 
   @override
-  Future<List<CartItem>> getCartItems() async {
+  Future<List<CartItem>> getCartItems(String emailId) async {
     try {
       // Get entities directly from data source
-      final cartItems = await _localDataSource.getCartItems();
+      final cartItems = await _localDataSource.getCartItems(emailId);
       return cartItems;
     } catch (e) {
       rethrow;
@@ -42,21 +42,21 @@ class CartRepositoryImpl implements CartRepository {
   }
 
   @override
-  Future<void> removeFromCart(String itemId) async {
+  Future<void> removeFromCart(String itemId, String emailId) async {
     try {
-      await _localDataSource.deleteCartItem(itemId);
+      await _localDataSource.deleteCartItem(itemId, emailId);
     } catch (e) {
       rethrow;
     }
   }
 
   @override
-  Future<void> updateCartItemQuantity(String itemId, int quantity) async {
+  Future<void> updateCartItemQuantity(String itemId, int quantity, String emailId) async {
     try {
-      final currentItems = await _localDataSource.getCartItems();
+      final currentItems = await _localDataSource.getCartItems(emailId);
       final itemToUpdate = currentItems.firstWhere((item) => item.id == itemId);
       await _localDataSource.updateCartItem(
-          itemToUpdate.copyWith(quantity: quantity));
+          itemToUpdate.copyWith(quantity: quantity), emailId);
     } catch (e) {
       rethrow;
     }

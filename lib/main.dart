@@ -10,7 +10,7 @@ import 'package:shop_trendy/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:shop_trendy/features/product/presentation/cubit/product_cubit.dart';
 import 'package:shop_trendy/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:shop_trendy/features/order/presentation/cubit/order_cubit/order_cubit.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';// For Stripe integration
+import 'package:flutter_stripe/flutter_stripe.dart'; // For Stripe integration
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter bindings are initialized
@@ -22,8 +22,8 @@ Future<void> main() async {
 
   // Initialize Stripe (for testing, use a dummy key or test publishable key)
   // For a real application,  fetch this securely, e.g., from a backend.
-  Stripe.publishableKey =
-      AppConstants.stripePublishableKey; // Replace with your test publishable key
+  Stripe.publishableKey = AppConstants
+      .stripePublishableKey; // Replace with your test publishable key
   //  set a merchant identifier for Apple Pay
   // Stripe.merchantIdentifier = 'merchant.com.your_app_name'; // Example: 'merchant.com.my_shop_trendy'
   await Stripe.instance.applySettings();
@@ -75,11 +75,7 @@ class MyApp extends StatelessWidget {
             // Provide ProductCubit throughout the app
             BlocProvider(create: (context) => getIt<ProductCubit>()),
             // Provide CartCubit throughout the app
-            BlocProvider(
-              create: (context) =>
-                  getIt<CartCubit>()
-                    ..loadCartItems(), // Load cart items on app start
-            ),
+            BlocProvider(create: (context) => getIt<CartCubit>()),
             // Provide OrderCubit throughout the app
             BlocProvider(
               create: (context) => getIt<OrderCubit>(), // Initialize OrderCubit
@@ -102,7 +98,10 @@ class MyApp extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                 ),
               ),
             ),

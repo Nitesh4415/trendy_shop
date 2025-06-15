@@ -45,9 +45,9 @@ class _LoginPageState extends State<LoginPage> {
           if (state is AuthAuthenticated) {
             context.go('/products');
           } else if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         builder: (context, state) {
@@ -100,7 +100,10 @@ class _LoginPageState extends State<LoginPage> {
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
-                            child: const Text('Login', style: TextStyle(fontSize: 18)),
+                            child: const Text(
+                              'Login',
+                              style: TextStyle(fontSize: 18),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16.0),
@@ -114,9 +117,12 @@ class _LoginPageState extends State<LoginPage> {
                               'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png',
                               height: 24.0,
                               errorBuilder: (context, error, stackTrace) =>
-                              const Icon(Icons.g_mobiledata),
+                                  const Icon(Icons.g_mobiledata),
                             ),
-                            label: const Text('Sign in with Google', style: TextStyle(fontSize: 18)),
+                            label: const Text(
+                              'Sign in with Google',
+                              style: TextStyle(fontSize: 18),
+                            ),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),

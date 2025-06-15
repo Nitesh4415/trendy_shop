@@ -34,7 +34,9 @@ class _OrderCardState extends State<OrderCard> {
     for (var productInOrder in widget.order.products) {
       if (!_productDetailsCache.containsKey(productInOrder.productId)) {
         try {
-          final product = await productCubit.fetchProductDetailsInternal(productInOrder.productId);
+          final product = await productCubit.fetchProductDetailsInternal(
+            productInOrder.productId,
+          );
           if (mounted) {
             setState(() {
               _productDetailsCache[product.id] = product;
@@ -79,9 +81,14 @@ class _OrderCardState extends State<OrderCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Order ID: ${widget.order.id}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              'Order ID: ${widget.order.id}',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 4),
-            Text('Date: ${widget.order.date.toLocal().toString().split(' ')[0]}'),
+            Text(
+              'Date: ${widget.order.date.toLocal().toString().split(' ')[0]}',
+            ),
             const Divider(height: 20),
             ...widget.order.products.map((productInOrder) {
               final product = _productDetailsCache[productInOrder.productId];
@@ -92,18 +99,32 @@ class _OrderCardState extends State<OrderCard> {
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Row(
                     children: [
-                      Image.network(product.image, width: 50, height: 50, fit: BoxFit.contain),
+                      Image.network(
+                        product.image,
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.contain,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(product.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
+                            Text(
+                              product.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             Text('Qty: ${productInOrder.quantity}'),
                           ],
                         ),
                       ),
-                      Text('\$${(product.price * productInOrder.quantity).toStringAsFixed(2)}'),
+                      Text(
+                        '\$${(product.price * productInOrder.quantity).toStringAsFixed(2)}',
+                      ),
                     ],
                   ),
                 ),
@@ -114,7 +135,11 @@ class _OrderCardState extends State<OrderCard> {
               alignment: Alignment.centerRight,
               child: Text(
                 'Total: \$${totalAmount.toStringAsFixed(2)}',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
               ),
             ),
           ],

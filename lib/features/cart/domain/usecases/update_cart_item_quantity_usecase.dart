@@ -8,7 +8,7 @@ class UpdateCartItemQuantityUseCase {
 
   UpdateCartItemQuantityUseCase(this._repository);
 
-  Future<void> call(String itemId, int quantity) async {
-    await _repository.updateCartItemQuantity(itemId, quantity);
+  Future<void> call(String itemId, int quantity, String emailId) async {
+    await _repository.updateCartItemQuantity(itemId, quantity, emailId);
   }
 }

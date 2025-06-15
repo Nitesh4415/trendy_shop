@@ -13,7 +13,8 @@ class OrderHistoryPage extends StatefulWidget {
   State<OrderHistoryPage> createState() => _OrderHistoryPageState();
 }
 
-class _OrderHistoryPageState extends State<OrderHistoryPage> with SingleTickerProviderStateMixin {
+class _OrderHistoryPageState extends State<OrderHistoryPage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -23,9 +24,6 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> with SingleTickerPr
     final authState = context.read<AuthCubit>().state;
     final orderCubit = context.read<OrderCubit>();
 
-    // --- KEY CHANGE ---
-    // Only fetch history if the state is not already loaded.
-    // After placing an order, the state will be OrderAllLoaded, so this fetch is skipped.
     if (orderCubit.state is! OrderAllLoaded) {
       if (authState is AuthAuthenticated) {
         context.read<OrderCubit>().fetchOrderHistory(authState.appUser.id!);
@@ -33,7 +31,9 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> with SingleTickerPr
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Please log in to view order history.')),
+              const SnackBar(
+                content: Text('Please log in to view order history.'),
+              ),
             );
             context.go('/login');
           }
@@ -68,9 +68,9 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> with SingleTickerPr
       body: BlocConsumer<OrderCubit, OrderState>(
         listener: (context, state) {
           if (state is OrderError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         builder: (context, state) {
@@ -80,7 +80,9 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> with SingleTickerPr
             return TabBarView(
               controller: _tabController,
               children: [
-                _buildOrderList([if (state.currentOrder != null) state.currentOrder!], 'No current order placed.'),
+                _buildOrderList([
+                  if (state.currentOrder != null) state.currentOrder!,
+                ], 'No current order placed.'),
                 _buildOrderList(state.pastOrders, 'No past orders found.'),
               ],
             );
@@ -93,7 +95,12 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> with SingleTickerPr
 
   Widget _buildOrderList(List<Orders> orders, String noOrdersMessage) {
     if (orders.isEmpty) {
-      return Center(child: Text(noOrdersMessage, style: const TextStyle(fontSize: 16, color: Colors.grey),));
+      return Center(
+        child: Text(
+          noOrdersMessage,
+          style: const TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      );
     }
     return ListView.builder(
       padding: const EdgeInsets.only(top: 8.0),

@@ -17,10 +17,11 @@ class CartLocalDataSourceImpl implements CartLocalDataSource {
   CartLocalDataSourceImpl(this._databaseHelper);
 
   // Helper method to convert CartItem to a Map for SQLite.
-  Map<String, dynamic> _toMap(CartItem item) {
+  // It now includes the user's email.
+  Map<String, dynamic> _toMap(CartItem item, String userEmail) {
     return {
       'id': item.id,
-      // Convert Product entity to ProductModel, then to JSON string
+      'user_email': userEmail, // Add user email to the map
       'product_json': jsonEncode(item.product.toModel().toJson()),
       'quantity': item.quantity,
     };
@@ -30,55 +31,64 @@ class CartLocalDataSourceImpl implements CartLocalDataSource {
   CartItem _fromMap(Map<String, dynamic> map) {
     return CartItem(
       id: map['id'] as String,
-      // Parse Product from JSON string, then convert ProductModel to Product entity
       product: ProductModel.fromJson(jsonDecode(map['product_json'] as String)).toEntity(),
       quantity: map['quantity'] as int,
     );
   }
 
+  // --- All methods below now require userEmail ---
+
   @override
-  Future<List<CartItem>> getCartItems() async {
+  Future<List<CartItem>> getCartItems(String userEmail) async {
     final db = await _databaseHelper.database;
-    final List<Map<String, dynamic>> maps = await db.query(DatabaseHelper.cartTableName);
+    final List<Map<String, dynamic>> maps = await db.query(
+      DatabaseHelper.cartTableName,
+      where: 'user_email = ?', // Filter by email
+      whereArgs: [userEmail],
+    );
     return List.generate(maps.length, (i) {
       return _fromMap(maps[i]);
     });
   }
 
   @override
-  Future<void> saveCartItem(CartItem item) async {
+  Future<void> saveCartItem(CartItem item, String userEmail) async {
     final db = await _databaseHelper.database;
     await db.insert(
       DatabaseHelper.cartTableName,
-      _toMap(item),
-      conflictAlgorithm: ConflictAlgorithm.replace, // Replace if item with same ID exists
+      _toMap(item, userEmail), // Pass email to the helper
+      conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
   @override
-  Future<void> updateCartItem(CartItem item) async {
+  Future<void> updateCartItem(CartItem item, String userEmail) async {
     final db = await _databaseHelper.database;
     await db.update(
       DatabaseHelper.cartTableName,
-      _toMap(item),
-      where: 'id = ?',
-      whereArgs: [item.id],
+      _toMap(item, userEmail),
+      where: 'id = ? AND user_email = ?', // Ensure we only update the item for the correct user
+      whereArgs: [item.id, userEmail],
     );
   }
 
   @override
-  Future<void> deleteCartItem(String id) async {
+  Future<void> deleteCartItem(String id, String userEmail) async {
     final db = await _databaseHelper.database;
     await db.delete(
       DatabaseHelper.cartTableName,
-      where: 'id = ?',
-      whereArgs: [id],
+      where: 'id = ? AND user_email = ?', // Ensure we only delete the item for the correct user
+      whereArgs: [id, userEmail],
     );
   }
 
   @override
-  Future<void> clearCart() async {
+  Future<void> clearCart(String userEmail) async {
     final db = await _databaseHelper.database;
-    await db.delete(DatabaseHelper.cartTableName);
+    await db.delete(
+      DatabaseHelper.cartTableName,
+      where: 'user_email = ?', // Only clear the cart for the specified user
+      whereArgs: [userEmail],
+    );
   }
 }

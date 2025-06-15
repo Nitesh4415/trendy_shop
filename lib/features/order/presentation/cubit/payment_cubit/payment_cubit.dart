@@ -25,10 +25,13 @@ class PaymentCubit extends Cubit<PaymentState> {
 
       // Dummy client secret - DO NOT USE IN PRODUCTION
       // This client secret would typically come from your backend after creating a PaymentIntent.
-      const String dummyClientSecret = 'pi_3P6f1lKFmY3Lh3G70e6t0Q0J_secret_abcdef1234567890'; // Replace with actual logic
+      const String dummyClientSecret =
+          'pi_3P6f1lKFmY3Lh3G70e6t0Q0J_secret_abcdef1234567890'; // Replace with actual logic
 
       if (dummyClientSecret.isEmpty) {
-        throw PaymentException('Failed to retrieve client secret from backend.');
+        throw PaymentException(
+          'Failed to retrieve client secret from backend.',
+        );
       }
 
       // 2. Initialize the Payment Sheet
@@ -47,7 +50,8 @@ class PaymentCubit extends Cubit<PaymentState> {
 
       emit(const PaymentState.success('Payment successful!'));
     } on StripeException catch (e) {
-      String errorMessage = 'Stripe Payment Failed: ${e.error.code} - ${e.error.message}';
+      String errorMessage =
+          'Stripe Payment Failed: ${e.error.code} - ${e.error.message}';
       if (e.error.message == 'Canceled') {
         errorMessage = 'Payment was cancelled.';
       }
@@ -55,7 +59,11 @@ class PaymentCubit extends Cubit<PaymentState> {
     } on PaymentException catch (e) {
       emit(PaymentState.error(PaymentFailure(e.message)));
     } catch (e) {
-      emit(PaymentState.error(PaymentFailure('An unexpected error occurred: ${e.toString()}')));
+      emit(
+        PaymentState.error(
+          PaymentFailure('An unexpected error occurred: ${e.toString()}'),
+        ),
+      );
     }
   }
 }

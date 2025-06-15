@@ -9,7 +9,7 @@ class GetCartItemsUseCase {
 
   GetCartItemsUseCase(this._repository);
 
-  Future<List<CartItem>> call() async {
-    return await _repository.getCartItems();
+  Future<List<CartItem>> call(String emailId) async {
+    return await _repository.getCartItems(emailId);
   }
 }

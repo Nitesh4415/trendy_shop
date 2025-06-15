@@ -27,7 +27,9 @@ class OrderCubit extends Cubit<OrderState> {
         orders.sort((a, b) => b.date.compareTo(a.date));
         final currentOrder = orders.first;
         final pastOrders = orders.sublist(1);
-        emit(OrderAllLoaded(currentOrder: currentOrder, pastOrders: pastOrders));
+        emit(
+          OrderAllLoaded(currentOrder: currentOrder, pastOrders: pastOrders),
+        );
       } else {
         emit(const OrderAllLoaded(currentOrder: null, pastOrders: []));
       }
@@ -56,7 +58,6 @@ class OrderCubit extends Cubit<OrderState> {
 
       // Emit the new state with the newly placed order as 'current'.
       emit(OrderAllLoaded(currentOrder: placedOrder, pastOrders: pastOrders));
-
     } catch (e) {
       emit(OrderError(e.toString()));
     }

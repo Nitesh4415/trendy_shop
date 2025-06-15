@@ -11,14 +11,9 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   ProductRemoteDataSourceImpl(this._apiClient);
 
   @override
-  Future<List<ProductModel>> getAllProducts({int? limit, String? sort, int? skip}) async {
+  Future<List<ProductModel>> getAllProducts() async {
     final responseData = await _apiClient.get(
-      ApiConstants.products,
-      queryParameters: {
-        if (limit != null) 'limit': limit,
-        if (sort != null) 'sort': sort,
-        if (skip != null) 'skip': skip, // Add skip parameter
-      },
+      ApiConstants.products
     );
     return (responseData as List)
         .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))

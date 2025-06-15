@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth; // Alias to avoid conflict
+import 'package:firebase_auth/firebase_auth.dart'
+    as firebase_auth; // Alias to avoid conflict
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shop_trendy/features/auth/domain/repositories/auth_repository.dart';
@@ -8,7 +9,8 @@ import 'package:shop_trendy/features/auth/domain/usecases/login_usecase/sign_in_
 import 'package:shop_trendy/features/auth/domain/usecases/sign_up_usecase/sign_up_with_email_password_usecase.dart';
 import 'package:shop_trendy/features/auth/domain/usecases/login_usecase/sign_in_with_google_usecase.dart';
 import 'package:shop_trendy/features/auth/domain/usecases/sign_out_usecase.dart';
-import 'package:shop_trendy/features/auth/domain/entities/user.dart' as app_user; // Alias for our app's User entity
+import 'package:shop_trendy/features/auth/domain/entities/user.dart'
+    as app_user; // Alias for our app's User entity
 import 'package:shop_trendy/features/auth/domain/usecases/user_usecase/get_user_by_email_usecase.dart';
 import 'package:shop_trendy/features/auth/domain/usecases/user_usecase/create_user_usecase.dart';
 import 'package:uuid/uuid.dart';
@@ -28,14 +30,14 @@ class AuthCubit extends Cubit<AuthState> {
   final CreateUserUseCase _createUser;
 
   AuthCubit(
-      this._signInWithEmailPassword,
-      this._signUpWithEmailPassword,
-      this._signInWithGoogle,
-      this._signOut,
-      this._authRepository,
-      this._getUserByEmail,
-      this._createUser,
-      ) : super(AuthInitial()) {
+    this._signInWithEmailPassword,
+    this._signUpWithEmailPassword,
+    this._signInWithGoogle,
+    this._signOut,
+    this._authRepository,
+    this._getUserByEmail,
+    this._createUser,
+  ) : super(AuthInitial()) {
     // Listen to Firebase auth state changes. This is the primary source of truth for auth.
     _authRepository.authStateChanges.listen((firebaseUser) async {
       // Pass the Firebase user, but no password here as it's from auth state change.
@@ -43,13 +45,20 @@ class AuthCubit extends Cubit<AuthState> {
     });
   }
 
-  Future<void> _handleUserAuthentication(firebase_auth.User? firebaseUser, {String? password}) async {
+  Future<void> _handleUserAuthentication(
+    firebase_auth.User? firebaseUser, {
+    String? password,
+  }) async {
     if (firebaseUser != null) {
       emit(AuthLoading());
       try {
         app_user.User? appUser;
         if (firebaseUser.email == null) {
-          emit(AuthError('Firebase user has no email. Cannot synchronize with FakeStoreAPI.'));
+          emit(
+            AuthError(
+              'Firebase user has no email. Cannot synchronize with FakeStoreAPI.',
+            ),
+          );
           return;
         }
 
@@ -58,7 +67,9 @@ class AuthCubit extends Cubit<AuthState> {
           if (users.isNotEmpty) {
             appUser = users.first;
             if (kDebugMode) {
-              print('User found in FakeStoreAPI: ${appUser.username} with ID ${appUser.id}');
+              print(
+                'User found in FakeStoreAPI: ${appUser.username} with ID ${appUser.id}',
+              );
             }
           }
         } on NotFoundException catch (_) {
@@ -72,23 +83,33 @@ class AuthCubit extends Cubit<AuthState> {
         }
 
         if (appUser == null) {
-
-          final generatedId = const Uuid().v4().hashCode; // A simple way to get an int ID
-          final username = firebaseUser.email!.split('@')[0]; // Simple username from email
+          final generatedId = const Uuid()
+              .v4()
+              .hashCode; // A simple way to get an int ID
+          final username = firebaseUser.email!.split(
+            '@',
+          )[0]; // Simple username from email
           final newUser = app_user.User(
             id: generatedId, // Pass a dummy ID
             username: username,
             email: firebaseUser.email!,
-            password: password ?? '', // Pass password if provided, else empty string
+            password:
+                password ?? '', // Pass password if provided, else empty string
           );
           appUser = await _createUser(newUser);
           if (kDebugMode) {
-            print('New user created in FakeStoreAPI: ${appUser.username} with ID ${appUser.id}');
+            print(
+              'New user created in FakeStoreAPI: ${appUser.username} with ID ${appUser.id}',
+            );
           }
         }
         emit(AuthAuthenticated(user: firebaseUser, appUser: appUser));
       } catch (e) {
-        emit(AuthError('Failed to synchronize user data with FakeStoreAPI: ${e.toString()}'));
+        emit(
+          AuthError(
+            'Failed to synchronize user data with FakeStoreAPI: ${e.toString()}',
+          ),
+        );
       }
     } else {
       emit(AuthUnauthenticated());

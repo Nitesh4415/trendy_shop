@@ -6,7 +6,8 @@ import 'package:shop_trendy/features/auth/domain/usecases/login_usecase/sign_in_
 import 'package:shop_trendy/features/auth/domain/usecases/login_usecase/sign_in_with_google_usecase.dart';
 import 'package:shop_trendy/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:shop_trendy/features/auth/domain/usecases/sign_up_usecase/sign_up_with_email_password_usecase.dart';
-import 'package:shop_trendy/features/auth/domain/entities/user.dart' as app_user;
+import 'package:shop_trendy/features/auth/domain/entities/user.dart'
+    as app_user;
 import 'package:shop_trendy/features/auth/domain/usecases/user_usecase/create_user_usecase.dart';
 import 'package:shop_trendy/features/auth/domain/usecases/user_usecase/get_user_by_email_usecase.dart';
 import 'package:shop_trendy/features/auth/presentation/cubit/auth_cubit.dart';
@@ -57,8 +58,7 @@ void main() {
     when(mockFirebaseUser.email).thenReturn('test@example.com');
 
     // Default stream for authStateChanges (unauthenticated)
-    when(mockAuthRepository.authStateChanges)
-        .thenAnswer((_) => Stream.empty());
+    when(mockAuthRepository.authStateChanges).thenAnswer((_) => Stream.empty());
 
     authCubit = AuthCubit(
       mockSignInWithEmailPassword,
@@ -93,10 +93,12 @@ void main() {
     blocTest<AuthCubit, AuthState>(
       'emits [AuthLoading, AuthAuthenticated] when signInWithEmailPassword is successful and user exists in FakeStoreAPI',
       build: () {
-        when(mockSignInWithEmailPassword(testEmail, testPassword))
-            .thenAnswer((_) async => mockUserCredential);
-        when(mockGetUserByEmail(testEmail))
-            .thenAnswer((_) async => [tAppUser]); // User exists
+        when(
+          mockSignInWithEmailPassword(testEmail, testPassword),
+        ).thenAnswer((_) async => mockUserCredential);
+        when(
+          mockGetUserByEmail(testEmail),
+        ).thenAnswer((_) async => [tAppUser]); // User exists
         return authCubit;
       },
       act: (cubit) => cubit.signInWithEmailPassword(testEmail, testPassword),
@@ -114,11 +116,15 @@ void main() {
     blocTest<AuthCubit, AuthState>(
       'emits [AuthLoading, AuthAuthenticated] when signInWithEmailPassword is successful and user created in FakeStoreAPI',
       build: () {
-        when(mockSignInWithEmailPassword(testEmail, testPassword))
-            .thenAnswer((_) async => mockUserCredential);
-        when(mockGetUserByEmail(testEmail))
-            .thenAnswer((_) async => []); // User does not exist
-        when(mockCreateUser(any)).thenAnswer((_) async => tAppUser); // User created
+        when(
+          mockSignInWithEmailPassword(testEmail, testPassword),
+        ).thenAnswer((_) async => mockUserCredential);
+        when(
+          mockGetUserByEmail(testEmail),
+        ).thenAnswer((_) async => []); // User does not exist
+        when(
+          mockCreateUser(any),
+        ).thenAnswer((_) async => tAppUser); // User created
         return authCubit;
       },
       act: (cubit) => cubit.signInWithEmailPassword(testEmail, testPassword),
@@ -136,15 +142,13 @@ void main() {
     blocTest<AuthCubit, AuthState>(
       'emits [AuthLoading, AuthError] when signInWithEmailPassword fails',
       build: () {
-        when(mockSignInWithEmailPassword(testEmail, testPassword))
-            .thenThrow(Exception('Login failed'));
+        when(
+          mockSignInWithEmailPassword(testEmail, testPassword),
+        ).thenThrow(Exception('Login failed'));
         return authCubit;
       },
       act: (cubit) => cubit.signInWithEmailPassword(testEmail, testPassword),
-      expect: () => [
-        AuthLoading(),
-        const AuthError('Exception: Login failed'),
-      ],
+      expect: () => [AuthLoading(), const AuthError('Exception: Login failed')],
       verify: (_) {
         verify(mockSignInWithEmailPassword(testEmail, testPassword)).called(1);
         verifyZeroInteractions(mockGetUserByEmail); // Should not call user API
@@ -155,18 +159,17 @@ void main() {
     blocTest<AuthCubit, AuthState>(
       'emits [AuthLoading, AuthAuthenticated] when signUpWithEmailPassword is successful and user created in FakeStoreAPI',
       build: () {
-        when(mockSignUpWithEmailPassword(testEmail, testPassword))
-            .thenAnswer((_) async => mockUserCredential);
-        when(mockGetUserByEmail(testEmail))
-            .thenAnswer((_) async => []); // User does not exist initially
+        when(
+          mockSignUpWithEmailPassword(testEmail, testPassword),
+        ).thenAnswer((_) async => mockUserCredential);
+        when(
+          mockGetUserByEmail(testEmail),
+        ).thenAnswer((_) async => []); // User does not exist initially
         when(mockCreateUser(any)).thenAnswer((_) async => tAppUser);
         return authCubit;
       },
       act: (cubit) => cubit.signUpWithEmailPassword(testEmail, testPassword),
-      expect: () => [
-        AuthLoading(),
-        isA<AuthAuthenticated>(),
-      ],
+      expect: () => [AuthLoading(), isA<AuthAuthenticated>()],
       verify: (_) {
         verify(mockSignUpWithEmailPassword(testEmail, testPassword)).called(1);
         verify(mockGetUserByEmail(testEmail)).called(1);
@@ -177,8 +180,9 @@ void main() {
     blocTest<AuthCubit, AuthState>(
       'emits [AuthLoading, AuthError] when signUpWithEmailPassword fails',
       build: () {
-        when(mockSignUpWithEmailPassword(testEmail, testPassword))
-            .thenThrow(Exception('Sign up failed'));
+        when(
+          mockSignUpWithEmailPassword(testEmail, testPassword),
+        ).thenThrow(Exception('Sign up failed'));
         return authCubit;
       },
       act: (cubit) => cubit.signUpWithEmailPassword(testEmail, testPassword),
@@ -191,17 +195,17 @@ void main() {
     blocTest<AuthCubit, AuthState>(
       'emits [AuthLoading, AuthAuthenticated] when signInWithGoogle is successful and user created in FakeStoreAPI',
       build: () {
-        when(mockSignInWithGoogle()).thenAnswer((_) async => mockUserCredential);
-        when(mockGetUserByEmail(testEmail))
-            .thenAnswer((_) async => []); // User does not exist initially
+        when(
+          mockSignInWithGoogle(),
+        ).thenAnswer((_) async => mockUserCredential);
+        when(
+          mockGetUserByEmail(testEmail),
+        ).thenAnswer((_) async => []); // User does not exist initially
         when(mockCreateUser(any)).thenAnswer((_) async => tAppUser);
         return authCubit;
       },
       act: (cubit) => cubit.signInWithGoogle(),
-      expect: () => [
-        AuthLoading(),
-        isA<AuthAuthenticated>(),
-      ],
+      expect: () => [AuthLoading(), isA<AuthAuthenticated>()],
       verify: (_) {
         verify(mockSignInWithGoogle()).called(1);
         verify(mockGetUserByEmail(testEmail)).called(1);
@@ -212,7 +216,9 @@ void main() {
     blocTest<AuthCubit, AuthState>(
       'emits [AuthLoading, AuthError] when signInWithGoogle fails',
       build: () {
-        when(mockSignInWithGoogle()).thenThrow(Exception('Google Sign In failed'));
+        when(
+          mockSignInWithGoogle(),
+        ).thenThrow(Exception('Google Sign In failed'));
         return authCubit;
       },
       act: (cubit) => cubit.signInWithGoogle(),

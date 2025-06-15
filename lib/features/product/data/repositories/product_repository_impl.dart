@@ -11,9 +11,9 @@ class ProductRepositoryImpl implements ProductRepository {
   ProductRepositoryImpl(this._remoteDataSource);
 
   @override
-  Future<List<Product>> getProducts({int? limit, String? sort, int? skip}) async {
+  Future<List<Product>> getProducts() async {
     try {
-      final productModels = await _remoteDataSource.getAllProducts(limit: limit, sort: sort, skip: skip);
+      final productModels = await _remoteDataSource.getAllProducts();
       return productModels.map((model) => model.toEntity()).toList();
     } catch (e) {
       rethrow; // Re-throw exceptions from data source

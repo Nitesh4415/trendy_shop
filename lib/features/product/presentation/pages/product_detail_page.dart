@@ -30,16 +30,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         title: const Text('Product Details'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          // --- SOLUTION FOR ISSUE 2 (Part 2) ---
-          // When navigating back, restore the previous state in the cubit.
           onPressed: () {
             context.read<ProductCubit>().restoreProductListState();
             context.pop();
           },
         ),
         actions: const [
-          // --- SOLUTION FOR ISSUE 1 ---
-          // Use your existing animated widget. It will update automatically.
           AnimatedShoppingCartButton(),
         ],
       ),

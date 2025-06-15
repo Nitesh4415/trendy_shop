@@ -9,12 +9,7 @@ class GetProductsUseCase {
 
   GetProductsUseCase(this._repository);
 
-  Future<List<Product>> call({int? limit, String? sort, int? skip}) async {
-    // Add skip
-    return await _repository.getProducts(
-      limit: limit,
-      sort: sort,
-      skip: skip,
-    ); // Pass skip
+  Future<List<Product>> call() async {
+    return await _repository.getProducts();
   }
 }

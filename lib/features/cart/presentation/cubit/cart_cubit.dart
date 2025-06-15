@@ -1,7 +1,9 @@
+import 'dart:async'; // Import for StreamSubscription
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:shop_trendy/features/auth/presentation/cubit/auth_cubit.dart'; // Import AuthCubit
 import 'package:shop_trendy/features/cart/domain/entities/cart_item.dart';
 import 'package:shop_trendy/features/cart/domain/usecases/add_to_cart_usecase.dart';
 import 'package:shop_trendy/features/cart/domain/usecases/clear_cart_usecase.dart';
@@ -18,7 +20,9 @@ class CartCubit extends Cubit<CartState> {
   final UpdateCartItemQuantityUseCase _updateCartItemQuantity;
   final GetCartItemsUseCase _getCartItems;
   final ClearCartUseCase _clearCart;
-  final CreatePaymentIntentUseCase _createPaymentIntent; // New dependency
+  final CreatePaymentIntentUseCase _createPaymentIntent;
+  final AuthCubit _authCubit; // New dependency
+  late final StreamSubscription _authSubscription; // Subscription to listen for auth changes
 
   CartCubit(
       this._addToCart,
@@ -27,12 +31,48 @@ class CartCubit extends Cubit<CartState> {
       this._getCartItems,
       this._clearCart,
       this._createPaymentIntent,
-      ) : super(CartInitial());
+      this._authCubit, // Inject AuthCubit
+      ) : super(CartInitial()) {
+    // Listen to auth state changes to clear/load the cart.
+    _authSubscription = _authCubit.stream.listen((authState) {
+      if (authState is AuthAuthenticated) {
+        // When a new user logs in, load their cart using their unique email.
+        if (authState.user.email != null) {
+          loadCartItems(authState.user.email!);
+        }
+      } else if (authState is AuthUnauthenticated) {
+        // When the user logs out, clear the cart data.
+        _clearCartOnSignOut();
+      }
+    });
+  }
 
-  Future<void> loadCartItems() async {
+  // Helper to safely get the current user's email.
+  String? get _currentUserEmail {
+    final authState = _authCubit.state;
+    if (authState is AuthAuthenticated) {
+      return authState.user.email;
+    }
+    return null;
+  }
+
+  void _clearCartOnSignOut() {
+    emit(const CartLoaded(items: []));
+  }
+
+  @override
+  Future<void> close() {
+    _authSubscription.cancel();
+    return super.close();
+  }
+
+  // This method now requires the user's email to fetch the correct cart.
+  Future<void> loadCartItems(String email) async {
     emit(CartLoading());
     try {
-      final items = await _getCartItems();
+      // NOTE: This assumes your GetCartItemsUseCase has been updated to accept an email.
+      // Example: final items = await _getCartItems.call(email);
+      final items = await _getCartItems(email);
       emit(CartLoaded(items: items));
     } catch (e) {
       emit(CartError(e.toString()));
@@ -40,125 +80,148 @@ class CartCubit extends Cubit<CartState> {
   }
 
   Future<void> addItemToCart(CartItem newItem) async {
-    final currentState = state;
-    if (currentState is CartLoaded) {
-      final existingItemIndex = currentState.items.indexWhere(
-            (item) => item.product.id == newItem.product.id,
-      );
+    final email = _currentUserEmail;
+    if (email == null) {
+      emit(const CartError("User not logged in. Cannot modify cart."));
+      return;
+    }
 
-      if (existingItemIndex != -1) {
-        // Item already in cart, update quantity
-        final existingItem = currentState.items[existingItemIndex];
-        final updatedQuantity = existingItem.quantity + newItem.quantity;
-        if (updatedQuantity > 0) {
-          final updatedItem = existingItem.copyWith(quantity: updatedQuantity);
-          await _updateCartItemQuantity(updatedItem.id, updatedQuantity);
-          final updatedItems = List<CartItem>.from(currentState.items);
-          updatedItems[existingItemIndex] = updatedItem;
-          emit(CartLoaded(items: updatedItems));
-        } else {
-          // If quantity becomes 0 or less, remove the item
-          await _removeFromCart(existingItem.id);
-          final updatedItems = List<CartItem>.from(currentState.items)
-            ..removeAt(existingItemIndex);
-          emit(CartLoaded(items: updatedItems));
-        }
-      } else {
-        // Item not in cart, add new item
-        await _addToCart(newItem);
-        final updatedItems = List<CartItem>.from(currentState.items)..add(newItem);
-        emit(CartLoaded(items: updatedItems));
-      }
+    final currentState = state;
+    // Get the current list of items, or an empty list if the cart is initial.
+    List<CartItem> currentItems = [];
+    if(currentState is CartLoaded) {
+      currentItems = currentState.items;
+    }
+
+    final existingItemIndex = currentItems.indexWhere(
+          (item) => item.product.id == newItem.product.id,
+    );
+
+    if (existingItemIndex != -1) {
+      // Item already in cart, update its quantity.
+      final existingItem = currentItems[existingItemIndex];
+      final updatedItem = existingItem.copyWith(
+          quantity: existingItem.quantity + newItem.quantity
+      );
+      // Call the database to update.
+      await _updateCartItemQuantity(updatedItem.id,updatedItem.quantity, email);
+      // Create a new list with the updated item.
+      final updatedItems = List<CartItem>.from(currentItems);
+      updatedItems[existingItemIndex] = updatedItem;
+      // Emit the new state.
+      emit(CartLoaded(items: updatedItems));
     } else {
-      // If not CartLoaded state, just add the item
-      await _addToCart(newItem);
-      emit(CartLoaded(items: [newItem]));
+      // Item is not in the cart, add it.
+      // Call the database to add the new item.
+      await _addToCart(newItem, email);
+      // Create a new list with the added item.
+      final updatedItems = List<CartItem>.from(currentItems)..add(newItem);
+      // Emit the new state.
+      emit(CartLoaded(items: updatedItems));
     }
   }
 
   Future<void> removeItemFromCart(String itemId) async {
+    final email = _currentUserEmail;
+    if (email == null) {
+      emit(const CartError("User not logged in. Cannot modify cart."));
+      return;
+    }
+
     final currentState = state;
     if (currentState is CartLoaded) {
-      await _removeFromCart(itemId);
+      // NOTE: This assumes your use case now accepts an email.
+      await _removeFromCart(itemId, email);
       final updatedItems = List<CartItem>.from(currentState.items)
         ..removeWhere((item) => item.id == itemId);
       emit(CartLoaded(items: updatedItems));
     }
   }
 
-  Future<void> incrementQuantity(String itemId) async {
-    final currentState = state;
-    if (currentState is CartLoaded) {
-      final itemIndex = currentState.items.indexWhere((item) => item.id == itemId);
-      if (itemIndex != -1) {
-        final currentItem = currentState.items[itemIndex];
-        final newQuantity = currentItem.quantity + 1;
-        await _updateCartItemQuantity(itemId, newQuantity);
-        final updatedItems = List<CartItem>.from(currentState.items);
-        updatedItems[itemIndex] = currentItem.copyWith(quantity: newQuantity);
-        emit(CartLoaded(items: updatedItems));
-      }
+  Future<void> _updateItemQuantity(String itemId, int newQuantity) async {
+    final email = _currentUserEmail;
+    if (email == null) {
+      emit(const CartError("User not logged in. Cannot modify cart."));
+      return;
     }
-  }
 
-  Future<void> decrementQuantity(String itemId) async {
     final currentState = state;
     if (currentState is CartLoaded) {
       final itemIndex = currentState.items.indexWhere((item) => item.id == itemId);
       if (itemIndex != -1) {
-        final currentItem = currentState.items[itemIndex];
-        final newQuantity = currentItem.quantity - 1;
+        final item = currentState.items[itemIndex];
         if (newQuantity > 0) {
-          await _updateCartItemQuantity(itemId, newQuantity);
+          final updatedItem = item.copyWith(quantity: newQuantity);
+          // NOTE: This assumes your use case now accepts an email.
+          await _updateCartItemQuantity(updatedItem.id,updatedItem.quantity, email);
           final updatedItems = List<CartItem>.from(currentState.items);
-          updatedItems[itemIndex] = currentItem.copyWith(quantity: newQuantity);
+          updatedItems[itemIndex] = updatedItem;
           emit(CartLoaded(items: updatedItems));
         } else {
-          // If quantity becomes 0, remove the item
-          await _removeFromCart(itemId);
-          final updatedItems = List<CartItem>.from(currentState.items)
-            ..removeAt(itemIndex);
+          // If quantity is 0 or less, remove the item.
+          await _removeFromCart(itemId, email);
+          final updatedItems = List<CartItem>.from(currentState.items)..removeAt(itemIndex);
           emit(CartLoaded(items: updatedItems));
         }
       }
     }
   }
 
+  Future<void> incrementQuantity(String itemId) async {
+    if (state is CartLoaded) {
+      final currentQuantity = (state as CartLoaded).items.firstWhere((item) => item.id == itemId).quantity;
+      await _updateItemQuantity(itemId, currentQuantity + 1);
+    }
+  }
+
+  Future<void> decrementQuantity(String itemId) async {
+    if (state is CartLoaded) {
+      final currentQuantity = (state as CartLoaded).items.firstWhere((item) => item.id == itemId).quantity;
+      await _updateItemQuantity(itemId, currentQuantity - 1);
+    }
+  }
+
   Future<void> clearAllItems() async {
+    final email = _currentUserEmail;
+    if (email == null) {
+      emit(const CartError("User not logged in. Cannot clear cart."));
+      return;
+    }
+
     emit(CartLoading());
     try {
-      await _clearCart();
+      // NOTE: This assumes your use case now accepts an email.
+      await _clearCart(email);
       emit(const CartLoaded(items: []));
     } catch (e) {
       emit(CartError(e.toString()));
     }
   }
 
-  // method for Stripe payment integration
   Future<void> initiatePayment(double amount, String currency) async {
-    emit(CartLoading()); // Indicate loading state for payment process
+    final email = _currentUserEmail;
+    if (email == null) {
+      emit(const CartError("User not logged in. Cannot process payment."));
+      return;
+    }
+
+    emit(CartLoading());
     try {
-      // backend call to create a PaymentIntent and get the clientSecret
       final clientSecret = await _createPaymentIntent(amount, currency);
 
-      // Initialize Payment Sheet with the clientSecret from  backend
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: clientSecret,
           merchantDisplayName: 'E-commerce App',
-          customerId: null, // pass Stripe Customer ID if available
-          customerEphemeralKeySecret: null, // Ephemeral key is needed if customerId is passed
-          // currency: currency, // Optional, can be set here if not implied by paymentIntentClientSecret
         ),
       );
 
-      // Present Payment Sheet
       await Stripe.instance.presentPaymentSheet();
 
-      // If payment is successful, clear cart and emit success
-      await _clearCart();
-      emit(const CartPaymentSuccess()); //
-      emit(const CartLoaded(items: [])); // Reset cart to empty after successful payment
+      // Clear the cart for the specific user upon successful payment.
+      await _clearCart(email);
+      emit(const CartPaymentSuccess());
+      emit(const CartLoaded(items: []));
 
     } on StripeException catch (e) {
       String message = 'Payment failed: ${e.error.message}';
@@ -166,25 +229,22 @@ class CartCubit extends Cubit<CartState> {
         message = "Payment cancelled by user.";
       }
       emit(CartError(message));
-      // Re-emit previous cart state if it was loaded
       final previousState = state;
       if (previousState is CartLoaded) {
         emit(CartLoaded(items: previousState.items));
       } else {
-        loadCartItems(); // Reload cart if state was not loaded
+        loadCartItems(email); // Reload cart on failure if it wasn't loaded
       }
     } catch (e) {
       emit(CartError('An unexpected error occurred during payment: ${e.toString()}'));
-      // Re-emit previous cart state if it was loaded
       final previousState = state;
       if (previousState is CartLoaded) {
         emit(CartLoaded(items: previousState.items));
       } else {
-        loadCartItems(); // Reload cart if state was not loaded
+        loadCartItems(email); // Reload cart on failure if it wasn't loaded
       }
     }
   }
-
 
   double get cartTotalPrice {
     final currentState = state;

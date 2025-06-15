@@ -8,7 +8,6 @@ import '../../../product/domain/entities/product.dart';
 import '../../../product/presentation/cubit/product_cubit.dart';
 import 'package:collection/collection.dart';
 
-
 class OrderDetailPage extends StatefulWidget {
   final int orderId;
   const OrderDetailPage({super.key, required this.orderId});
@@ -35,13 +34,17 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       for (var productInOrder in _order!.products) {
         if (!_productDetailsCache.containsKey(productInOrder.productId)) {
           try {
-            final product = await context.read<ProductCubit>().fetchProductDetailsInternal(productInOrder.productId);
+            final product = await context
+                .read<ProductCubit>()
+                .fetchProductDetailsInternal(productInOrder.productId);
             setState(() {
               _productDetailsCache[product.id] = product;
             });
           } catch (e) {
             if (kDebugMode) {
-              print('Error fetching product details for ID ${productInOrder.productId}: $e');
+              print(
+                'Error fetching product details for ID ${productInOrder.productId}: $e',
+              );
             }
             // Handle error, e.g., show a placeholder or error message
           }
@@ -64,12 +67,13 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         builder: (context, orderState) {
           // Refresh order if state changes or if it was null initially
           if (_order == null && orderState is OrderHistoryLoaded) {
-            _order = orderState.orders.firstWhereOrNull((o) => o.id == widget.orderId);
+            _order = orderState.orders.firstWhereOrNull(
+              (o) => o.id == widget.orderId,
+            );
             if (_order != null) {
               _loadOrderDetails(); // Reload products if order found now
             }
           }
-
 
           if (orderState is OrderLoading && _order == null) {
             return const Center(child: CircularProgressIndicator());
@@ -89,7 +93,10 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               children: [
                 Text(
                   'Order ID: ${_order!.id ?? 'N/A'}',
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -108,13 +115,18 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   itemCount: _order!.products.length,
                   itemBuilder: (context, index) {
                     final productInOrder = _order!.products[index];
-                    final product = _productDetailsCache[productInOrder.productId];
+                    final product =
+                        _productDetailsCache[productInOrder.productId];
 
                     if (product == null) {
                       return ListTile(
-                        title: Text('Product ID: ${productInOrder.productId} (Loading...)'),
+                        title: Text(
+                          'Product ID: ${productInOrder.productId} (Loading...)',
+                        ),
                         subtitle: Text('Quantity: ${productInOrder.quantity}'),
-                        trailing: const CircularProgressIndicator(strokeWidth: 2),
+                        trailing: const CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
                       );
                     }
 
@@ -130,7 +142,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                               height: 60,
                               fit: BoxFit.contain,
                               errorBuilder: (context, error, stackTrace) =>
-                              const Icon(Icons.broken_image, size: 30),
+                                  const Icon(Icons.broken_image, size: 30),
                             ),
                             const SizedBox(width: 10),
                             Expanded(
@@ -139,18 +151,24 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                 children: [
                                   Text(
                                     product.title,
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   Text('Quantity: ${productInOrder.quantity}'),
-                                  Text('Price: \$${product.price.toStringAsFixed(2)}'),
+                                  Text(
+                                    'Price: \$${product.price.toStringAsFixed(2)}',
+                                  ),
                                 ],
                               ),
                             ),
                             Text(
                               '\$${(product.price * productInOrder.quantity).toStringAsFixed(2)}',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
@@ -163,7 +181,11 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   alignment: Alignment.centerRight,
                   child: Text(
                     'Total Amount: \$${totalAmount.toStringAsFixed(2)}',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
                   ),
                 ),
               ],

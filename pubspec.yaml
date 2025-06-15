@@ -73,6 +73,8 @@ dependencies:
   uuid: ^4.5.1
   collection: ^1.19.1
   pretty_dio_logger: ^1.4.0
+  dev: ^1.0.0
+  sqflite_common_ffi: ^2.3.5
 
 dev_dependencies:
   flutter_test:

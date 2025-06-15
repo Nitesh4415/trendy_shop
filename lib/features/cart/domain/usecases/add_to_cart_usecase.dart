@@ -8,7 +8,7 @@ class AddToCartUseCase {
 
   AddToCartUseCase(this._repository);
 
-  Future<void> call(CartItem item) async {
-    await _repository.addToCart(item);
+  Future<void> call(CartItem item, String emailId) async {
+    await _repository.addToCart(item, emailId);
   }
 }
