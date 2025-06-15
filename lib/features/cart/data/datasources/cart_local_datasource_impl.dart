@@ -31,7 +31,9 @@ class CartLocalDataSourceImpl implements CartLocalDataSource {
   CartItem _fromMap(Map<String, dynamic> map) {
     return CartItem(
       id: map['id'] as String,
-      product: ProductModel.fromJson(jsonDecode(map['product_json'] as String)).toEntity(),
+      product: ProductModel.fromJson(
+        jsonDecode(map['product_json'] as String),
+      ).toEntity(),
       quantity: map['quantity'] as int,
     );
   }
@@ -67,7 +69,8 @@ class CartLocalDataSourceImpl implements CartLocalDataSource {
     await db.update(
       DatabaseHelper.cartTableName,
       _toMap(item, userEmail),
-      where: 'id = ? AND user_email = ?', // Ensure we only update the item for the correct user
+      where:
+          'id = ? AND user_email = ?', // Ensure we only update the item for the correct user
       whereArgs: [item.id, userEmail],
     );
   }
@@ -77,7 +80,8 @@ class CartLocalDataSourceImpl implements CartLocalDataSource {
     final db = await _databaseHelper.database;
     await db.delete(
       DatabaseHelper.cartTableName,
-      where: 'id = ? AND user_email = ?', // Ensure we only delete the item for the correct user
+      where:
+          'id = ? AND user_email = ?', // Ensure we only delete the item for the correct user
       whereArgs: [id, userEmail],
     );
   }

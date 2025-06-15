@@ -15,7 +15,8 @@ class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   @override
   void dispose() {
@@ -28,9 +29,9 @@ class _SignUpPageState extends State<SignUpPage> {
   void _onSignUpPressed() {
     if (_formKey.currentState?.validate() ?? false) {
       if (_passwordController.text != _confirmPasswordController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Passwords do not match')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
         return;
       }
       context.read<AuthCubit>().signUpWithEmailPassword(
@@ -49,9 +50,9 @@ class _SignUpPageState extends State<SignUpPage> {
           if (state is AuthAuthenticated) {
             context.go('/products');
           } else if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         builder: (context, state) {
@@ -117,7 +118,10 @@ class _SignUpPageState extends State<SignUpPage> {
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
-                        child: const Text('Sign Up', style: TextStyle(fontSize: 18)),
+                        child: const Text(
+                          'Sign Up',
+                          style: TextStyle(fontSize: 18),
+                        ),
                       ),
                     ),
                   const SizedBox(height: 16.0),

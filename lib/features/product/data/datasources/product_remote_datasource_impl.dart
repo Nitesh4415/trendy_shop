@@ -12,9 +12,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
 
   @override
   Future<List<ProductModel>> getAllProducts() async {
-    final responseData = await _apiClient.get(
-      ApiConstants.products
-    );
+    final responseData = await _apiClient.get(ApiConstants.products);
     return (responseData as List)
         .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
         .toList();
@@ -22,15 +20,15 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
 
   @override
   Future<ProductModel> getProductDetails(int id) async {
-    final responseData = await _apiClient.get(
-        ApiConstants.productDetails(id),
-      );
-      return ProductModel.fromJson(responseData as Map<String, dynamic>);
-    }
+    final responseData = await _apiClient.get(ApiConstants.productDetails(id));
+    return ProductModel.fromJson(responseData as Map<String, dynamic>);
+  }
 
   @override
   Future<List<ProductModel>> getProductsByCategory(String category) async {
-    final responseData = await _apiClient.get('${ApiConstants.products}/category/$category');
+    final responseData = await _apiClient.get(
+      '${ApiConstants.products}/category/$category',
+    );
     return (responseData as List)
         .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
         .toList();

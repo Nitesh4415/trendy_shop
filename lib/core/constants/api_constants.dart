@@ -12,4 +12,3 @@ class ApiConstants {
   // Endpoint for users
   static const String users = '/users';
 }
-

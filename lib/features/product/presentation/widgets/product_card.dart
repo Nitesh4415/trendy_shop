@@ -12,9 +12,7 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       child: InkWell(
         onTap: () {
           context.go('/products/${product.id}'); // Navigate to product details
@@ -26,14 +24,14 @@ class ProductCard extends StatelessWidget {
               flex: 3,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Hero( // Hero animation for smooth transition
+                child: Hero(
+                  // Hero animation for smooth transition
                   tag: 'product-${product.id}',
                   child: Image.network(
                     product.image,
                     fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => const Center(
-                      child: Icon(Icons.broken_image, size: 50),
-                    ),
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Center(child: Icon(Icons.broken_image, size: 50)),
                   ),
                 ),
               ),
@@ -73,7 +71,10 @@ class ProductCard extends StatelessWidget {
                         ),
                         Text(
                           ' (${product.rating.count})',
-                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
                         ),
                       ],
                     ),

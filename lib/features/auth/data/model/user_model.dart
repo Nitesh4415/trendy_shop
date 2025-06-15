@@ -8,13 +8,14 @@ part 'user_model.g.dart';
 @freezed
 class UserModel with _$UserModel {
   const factory UserModel({
-  int? id,
-  required String? email,
-  required String? username,
-  required String? password,
+    int? id,
+    required String? email,
+    required String? username,
+    required String? password,
   }) = _UserModel;
 
-  factory UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
+  factory UserModel.fromJson(Map<String, dynamic> json) =>
+      _$UserModelFromJson(json);
 
   factory UserModel.fromEntity(User entity) {
     return UserModel(

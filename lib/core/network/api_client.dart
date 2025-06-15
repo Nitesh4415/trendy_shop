@@ -5,26 +5,29 @@ import 'package:shop_trendy/core/constants/api_constants.dart';
 import 'dart:io';
 import 'package:shop_trendy/core/error/exceptions.dart';
 
-
 @lazySingleton
 class ApiClient {
   final Dio dio;
   final String baseUrl;
 
-  ApiClient({required this.dio, @Named('fakeStoreApiUrl') required this.baseUrl}) {
+  ApiClient({
+    required this.dio,
+    @Named('fakeStoreApiUrl') required this.baseUrl,
+  }) {
     if (kDebugMode) {
       print('ApiClient initialized with baseUrl: $baseUrl');
     } // ADDED FOR DEBUGGING
     dio.options.baseUrl = baseUrl; // Ensure the correct base URL is set here
     dio.options.headers['Content-Type'] = 'application/json';
-
-
   }
 
-  Future<dynamic> get(String path, {Map<String, dynamic>? queryParameters}) async {
+  Future<dynamic> get(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
     try {
-      if(dio.options.baseUrl=='http://10.0.2.2:3000'){
-        dio.options.baseUrl=ApiConstants.fakeStoreApiUrl;
+      if (dio.options.baseUrl == 'http://10.0.2.2:3000') {
+        dio.options.baseUrl = ApiConstants.fakeStoreApiUrl;
       }
       final response = await dio.get(path, queryParameters: queryParameters);
       return _handleResponse(response);
@@ -81,7 +84,8 @@ class ApiClient {
       case DioExceptionType.cancel:
         throw OperationCanceledException();
       case DioExceptionType.unknown:
-        if (e.error is SocketException) { // No internet connection
+        if (e.error is SocketException) {
+          // No internet connection
           throw NetworkException();
         }
         throw ServerException(); // Generic for other unknown errors

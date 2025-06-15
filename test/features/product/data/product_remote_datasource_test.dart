@@ -13,7 +13,7 @@ import 'package:shop_trendy/features/product/data/models/product_model.dart';
 import 'product_remote_datasource_test.mocks.dart';
 
 // Fixture reader for loading JSON data from files
-import '../../../../fixtures/fixture_reader.dart';
+import '../../../fixtures/fixture_reader.dart';
 
 // Generate mocks for ApiClient
 @GenerateMocks([ApiClient])

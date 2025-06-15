@@ -4,10 +4,10 @@ import '../../domain/repositories/stripe_payment_repository.dart';
 import '../datasources/stripe_payment_datasource.dart';
 
 @LazySingleton(as: StripePaymentRepository)
-class PaymentRepositoryImpl implements StripePaymentRepository {
+class StripePaymentRepositoryImpl implements StripePaymentRepository {
   final StripePaymentRemoteDataSource _remoteDataSource;
 
-  PaymentRepositoryImpl(this._remoteDataSource);
+  StripePaymentRepositoryImpl(this._remoteDataSource);
 
   @override
   Future<String> createPaymentIntent(double amount, String currency) async {

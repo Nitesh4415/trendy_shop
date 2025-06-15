@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../cubit/cart_cubit.dart';
 
-
 class AnimatedShoppingCartButton extends StatelessWidget {
   const AnimatedShoppingCartButton({super.key});
 
@@ -42,10 +41,7 @@ class AnimatedShoppingCartButton extends StatelessWidget {
                   child: Center(
                     child: Text(
                       '$itemCount',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontSize: 10),
                       textAlign: TextAlign.center,
                     ),
                   ),

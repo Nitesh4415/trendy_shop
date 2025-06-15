@@ -75,6 +75,7 @@ dependencies:
   pretty_dio_logger: ^1.4.0
   dev: ^1.0.0
   sqflite_common_ffi: ^2.3.5
+  network_image_mock: ^2.1.1
 
 dev_dependencies:
   flutter_test:

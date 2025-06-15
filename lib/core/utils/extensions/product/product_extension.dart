@@ -10,10 +10,7 @@ extension ProductX on Product {
       description: description,
       category: category,
       image: image,
-      rating: RatingModel(
-        rate: rating.rate,
-        count: rating.count,
-      ),
+      rating: RatingModel(rate: rating.rate, count: rating.count),
     );
   }
 }

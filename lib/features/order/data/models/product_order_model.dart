@@ -10,5 +10,6 @@ class ProductInOrderModel with _$ProductInOrderModel {
     required int quantity,
   }) = _ProductInOrderModel;
 
-  factory ProductInOrderModel.fromJson(Map<String, dynamic> json) => _$ProductInOrderModelFromJson(json);
+  factory ProductInOrderModel.fromJson(Map<String, dynamic> json) =>
+      _$ProductInOrderModelFromJson(json);
 }

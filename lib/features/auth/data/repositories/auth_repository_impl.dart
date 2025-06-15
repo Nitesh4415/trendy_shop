@@ -12,7 +12,10 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this._remoteDataSource);
 
   @override
-  Future<UserCredential> signInWithEmailPassword(String email, String password) async {
+  Future<UserCredential> signInWithEmailPassword(
+    String email,
+    String password,
+  ) async {
     try {
       return await _remoteDataSource.signInWithEmailPassword(email, password);
     } catch (e) {
@@ -21,7 +24,10 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<UserCredential> signUpWithEmailPassword(String email, String password) async {
+  Future<UserCredential> signUpWithEmailPassword(
+    String email,
+    String password,
+  ) async {
     try {
       return await _remoteDataSource.signUpWithEmailPassword(email, password);
     } catch (e) {

@@ -24,10 +24,7 @@ class ProductCarousel extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Text(
-            title,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
+          child: Text(title, style: Theme.of(context).textTheme.headlineSmall),
         ),
         CarouselSlider.builder(
           itemCount: products.length,
@@ -39,20 +36,29 @@ class ProductCarousel extends StatelessWidget {
               },
               child: Card(
                 elevation: 4,
-                margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 8.0,
+                  vertical: 4.0,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(12),
+                        ),
                         child: CachedNetworkImage(
                           imageUrl: product.image,
                           fit: BoxFit.cover,
                           width: double.infinity,
-                          placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                          errorWidget: (context, url, error) => const Icon(Icons.error),
+                          placeholder: (context, url) =>
+                              const Center(child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
                         ),
                       ),
                     ),
@@ -66,13 +72,17 @@ class ProductCarousel extends StatelessWidget {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                        vertical: 4.0,
+                      ),
                       child: Text(
                         '\$${product.price.toStringAsFixed(2)}',
-                        style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green[700],
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium!
+                            .copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green[700],
+                            ),
                       ),
                     ),
                   ],

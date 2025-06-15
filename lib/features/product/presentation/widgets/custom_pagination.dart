@@ -4,10 +4,7 @@ class CustomPaginationControls extends StatelessWidget {
   // The callback is now of type Future<void> Function() to support async operations.
   final Future<void> Function() onLoadMore;
 
-  const CustomPaginationControls({
-    super.key,
-    required this.onLoadMore,
-  });
+  const CustomPaginationControls({super.key, required this.onLoadMore});
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +16,7 @@ class CustomPaginationControls extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
           ),
-          child: const Text(
-            'Load More',
-            style: TextStyle(fontSize: 16),
-          ),
+          child: const Text('Load More', style: TextStyle(fontSize: 16)),
         ),
       ),
     );

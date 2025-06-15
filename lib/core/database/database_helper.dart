@@ -35,7 +35,9 @@ class DatabaseHelper {
       onUpgrade: (db, oldVersion, newVersion) async {
         // This runs for existing users when the version number increases
         if (oldVersion < 2) {
-          await db.execute("ALTER TABLE $cartTableName ADD COLUMN user_email TEXT");
+          await db.execute(
+            "ALTER TABLE $cartTableName ADD COLUMN user_email TEXT",
+          );
         }
       },
     );

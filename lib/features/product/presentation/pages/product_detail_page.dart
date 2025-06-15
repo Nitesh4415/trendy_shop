@@ -35,15 +35,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             context.pop();
           },
         ),
-        actions: const [
-          AnimatedShoppingCartButton(),
-        ],
+        actions: const [AnimatedShoppingCartButton()],
       ),
       body: BlocConsumer<ProductCubit, ProductState>(
         listener: (context, state) {
           if (state is ProductError) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         builder: (context, state) {
@@ -68,7 +67,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         height: 250,
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.broken_image, size: 100),
+                            const Icon(Icons.broken_image, size: 100),
                       ),
                     ),
                   ),

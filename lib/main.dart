@@ -15,9 +15,6 @@ import 'package:flutter_stripe/flutter_stripe.dart'; // For Stripe integration
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter bindings are initialized
 
-  // Initialize Firebase
-  // IMPORTANT: You need to set up your Firebase project and generate firebase_options.dart
-  // Run `flutterfire configure` in your project root after setting up Firebase.
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Initialize Stripe (for testing, use a dummy key or test publishable key)
@@ -27,12 +24,7 @@ Future<void> main() async {
   //  set a merchant identifier for Apple Pay
   // Stripe.merchantIdentifier = 'merchant.com.your_app_name'; // Example: 'merchant.com.my_shop_trendy'
   await Stripe.instance.applySettings();
-
-  // Configure dependency injection using injectable
   await configureDependencies(Environment.prod);
-
-  // Now, runApp will only be called after all dependencies are configured.
-  // We'll wrap MyApp in a FutureBuilder to ensure GetIt is fully ready before building.
   runApp(const MyApp());
 }
 
@@ -42,10 +34,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      // The future will complete when all GetIt dependencies are ready
       future: getIt.allReady(),
       builder: (context, snapshot) {
-        // While waiting for GetIt to be ready, show a loading indicator
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const MaterialApp(
             home: Scaffold(body: Center(child: CircularProgressIndicator())),
@@ -64,19 +54,13 @@ class MyApp extends StatelessWidget {
             ),
           );
         }
-
-        // Once GetIt is ready, build the main application
         return MultiBlocProvider(
           providers: [
-            // Provide AuthCubit throughout the app
             BlocProvider(
               create: (context) => getIt<AuthCubit>()..checkAuthStatus(),
             ),
-            // Provide ProductCubit throughout the app
             BlocProvider(create: (context) => getIt<ProductCubit>()),
-            // Provide CartCubit throughout the app
             BlocProvider(create: (context) => getIt<CartCubit>()),
-            // Provide OrderCubit throughout the app
             BlocProvider(
               create: (context) => getIt<OrderCubit>(), // Initialize OrderCubit
             ),

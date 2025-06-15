@@ -25,10 +25,7 @@ class AppRouter {
             return authState.isAuthenticated ? '/products' : '/login';
           },
         ),
-        GoRoute(
-          path: '/login',
-          builder: (context, state) => const LoginPage(),
-        ),
+        GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
         GoRoute(
           path: '/signup',
           builder: (context, state) => const SignUpPage(),
@@ -46,10 +43,7 @@ class AppRouter {
             ),
           ],
         ),
-        GoRoute(
-          path: '/cart',
-          builder: (context, state) => const CartPage(),
-        ),
+        GoRoute(path: '/cart', builder: (context, state) => const CartPage()),
         GoRoute(
           path: '/orders', // New route for order history
           builder: (context, state) => const OrderHistoryPage(),
@@ -67,7 +61,8 @@ class AppRouter {
       redirect: (BuildContext context, GoRouterState state) {
         final authState = context.read<AuthCubit>().state;
         final bool loggedIn = authState.isAuthenticated;
-        final bool loggingIn = state.uri.path == '/login' || state.uri.path == '/signup';
+        final bool loggingIn =
+            state.uri.path == '/login' || state.uri.path == '/signup';
 
         if (loggedIn && loggingIn) {
           return '/products';
@@ -79,9 +74,7 @@ class AppRouter {
       },
       errorBuilder: (context, state) => Scaffold(
         appBar: AppBar(title: const Text('Error')),
-        body: Center(
-          child: Text('Error: ${state.error}'),
-        ),
+        body: Center(child: Text('Error: ${state.error}')),
       ),
     );
   }

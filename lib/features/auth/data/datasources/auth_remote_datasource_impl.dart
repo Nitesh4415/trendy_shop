@@ -14,10 +14,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserCredential> signInWithEmailPassword(
-      String email, String password) async {
+    String email,
+    String password,
+  ) async {
     try {
       return await _firebaseAuth.signInWithEmailAndPassword(
-          email: email, password: password);
+        email: email,
+        password: password,
+      );
     } on FirebaseAuthException catch (e) {
       throw Exception(e.message); // Re-throw FirebaseAuth exceptions
     } catch (e) {
@@ -27,10 +31,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserCredential> signUpWithEmailPassword(
-      String email, String password) async {
+    String email,
+    String password,
+  ) async {
     try {
       return await _firebaseAuth.createUserWithEmailAndPassword(
-          email: email, password: password);
+        email: email,
+        password: password,
+      );
     } on FirebaseAuthException catch (e) {
       throw Exception(e.message); // Re-throw FirebaseAuth exceptions
     } catch (e) {
@@ -48,7 +56,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
 
       final GoogleSignInAuthentication googleAuth =
-      await googleUser.authentication;
+          await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -60,7 +68,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw Exception(e.message);
     } catch (e) {
       // Handle any other unexpected errors during Google sign in
-      throw Exception('An unknown error occurred during Google sign in: ${e.toString()}');
+      throw Exception(
+        'An unknown error occurred during Google sign in: ${e.toString()}',
+      );
     }
   }
 

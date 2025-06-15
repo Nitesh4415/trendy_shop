@@ -24,12 +24,11 @@ class ProductCubit extends Cubit<ProductState> {
   List<Product> _lastKnownProductList = [];
   bool _lastKnownHasMore = true;
 
-
   ProductCubit(
-      this._getAllProducts,
-      this._getProductDetails,
-      this._getProductsByCategory,
-      ) : super(ProductInitial());
+    this._getAllProducts,
+    this._getProductDetails,
+    this._getProductsByCategory,
+  ) : super(ProductInitial());
 
   bool get isLoadingMore => _isLoadingMore;
 
@@ -51,13 +50,18 @@ class ProductCubit extends Cubit<ProductState> {
     if (_isLoadingMore) return false;
 
     final currentState = state;
-    if (currentState is ProductLoaded && !currentState.hasMore && !isInitialLoad) return false;
+    if (currentState is ProductLoaded &&
+        !currentState.hasMore &&
+        !isInitialLoad)
+      return false;
 
     _isLoadingMore = true;
 
     try {
       if (_allFetchedProducts.isEmpty) {
-        emit(ProductLoading()); // Full screen loader only for the very first time.
+        emit(
+          ProductLoading(),
+        ); // Full screen loader only for the very first time.
         // Call the use case without pagination parameters.
         _allFetchedProducts = await _getAllProducts();
       }
@@ -71,10 +75,9 @@ class ProductCubit extends Cubit<ProductState> {
       }
 
       // On initial load, start with an empty list to build upon.
-      if(isInitialLoad){
+      if (isInitialLoad) {
         productsToShow = [];
       }
-
 
       // Show loading more indicator for pagination
       if (!isInitialLoad) {
@@ -87,21 +90,27 @@ class ProductCubit extends Cubit<ProductState> {
       final remaining = _allFetchedProducts.length - currentLength;
 
       // Determine how many new items to add for the next "page".
-      final nextPageSize = remaining > _productsPerPage ? _productsPerPage : remaining;
+      final nextPageSize = remaining > _productsPerPage
+          ? _productsPerPage
+          : remaining;
       List<Product> newItems = [];
       if (nextPageSize > 0) {
-        newItems = _allFetchedProducts.sublist(currentLength, currentLength + nextPageSize);
+        newItems = _allFetchedProducts.sublist(
+          currentLength,
+          currentLength + nextPageSize,
+        );
         productsToShow.addAll(newItems);
       }
 
       // Check if there are still more items to load in subsequent pages.
       final hasMore = productsToShow.length < _allFetchedProducts.length;
 
-      emit(ProductLoaded(products: List.from(productsToShow), hasMore: hasMore));
+      emit(
+        ProductLoaded(products: List.from(productsToShow), hasMore: hasMore),
+      );
 
       // Return true if we successfully added new items to the list.
       return newItems.isNotEmpty;
-
     } catch (e) {
       emit(ProductError(e.toString()));
       return false;
@@ -112,7 +121,12 @@ class ProductCubit extends Cubit<ProductState> {
 
   void restoreProductListState() {
     if (_lastKnownProductList.isNotEmpty) {
-      emit(ProductLoaded(products: List.from(_lastKnownProductList), hasMore: _lastKnownHasMore));
+      emit(
+        ProductLoaded(
+          products: List.from(_lastKnownProductList),
+          hasMore: _lastKnownHasMore,
+        ),
+      );
     } else {
       fetchAllProducts(isInitialLoad: true);
     }
@@ -138,7 +152,9 @@ class ProductCubit extends Cubit<ProductState> {
           relatedProducts = relatedProducts.sublist(0, 5);
         }
       }
-      emit(ProductDetailLoaded(product: product, relatedProducts: relatedProducts));
+      emit(
+        ProductDetailLoaded(product: product, relatedProducts: relatedProducts),
+      );
     } catch (e) {
       emit(ProductError(e.toString()));
     }

@@ -2,7 +2,6 @@ import 'package:injectable/injectable.dart';
 
 import '../repositories/stripe_payment_repository.dart';
 
-
 @LazySingleton()
 class CreatePaymentIntentUseCase {
   final StripePaymentRepository _repository;

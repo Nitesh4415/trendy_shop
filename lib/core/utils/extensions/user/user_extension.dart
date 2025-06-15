@@ -9,4 +9,5 @@ extension UserX on User {
       username: username,
       password: password,
     );
-  }}
+  }
+}

@@ -13,15 +13,13 @@ class StripePaymentDataSourceImpl implements StripePaymentDataSource {
 
   @override
   Future<String> createPaymentIntent(double amount, String currency) async {
-
-
     if (kDebugMode) {
       print(
-        'Simulating Stripe Payment Intent creation for amount: $amount, currency: $currency');
+        'Simulating Stripe Payment Intent creation for amount: $amount, currency: $currency',
+      );
     }
 
     try {
-
       const String dummyClientSecret =
           'pi_3P6f1D2e3f4g5h6i7j8k9l0_secret_ABCDEFGHIJKLMNOPQRSTUVWXYZ';
       return Future.value(dummyClientSecret); // Simulate success
@@ -29,10 +27,12 @@ class StripePaymentDataSourceImpl implements StripePaymentDataSource {
       // Dio errors are typically DioError
       if (e is DioException) {
         throw PaymentException(
-            'Failed to create payment intent: ${e.response?.data ?? e.message}');
+          'Failed to create payment intent: ${e.response?.data ?? e.message}',
+        );
       }
       throw PaymentException(
-          'Failed to create payment intent: ${e.toString()}');
+        'Failed to create payment intent: ${e.toString()}',
+      );
     }
   }
 
@@ -54,11 +54,13 @@ class StripePaymentDataSourceImpl implements StripePaymentDataSource {
         throw PaymentException("Payment cancelled by user.");
       } else {
         throw PaymentException(
-            "Payment failed: ${e.error.localizedMessage ?? 'Unknown error'}");
+          "Payment failed: ${e.error.localizedMessage ?? 'Unknown error'}",
+        );
       }
     } catch (e) {
       throw PaymentException(
-          "An unexpected error occurred during payment: ${e.toString()}");
+        "An unexpected error occurred during payment: ${e.toString()}",
+      );
     }
   }
 }

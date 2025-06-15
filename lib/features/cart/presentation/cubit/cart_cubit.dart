@@ -22,17 +22,18 @@ class CartCubit extends Cubit<CartState> {
   final ClearCartUseCase _clearCart;
   final CreatePaymentIntentUseCase _createPaymentIntent;
   final AuthCubit _authCubit; // New dependency
-  late final StreamSubscription _authSubscription; // Subscription to listen for auth changes
+  late final StreamSubscription
+  _authSubscription; // Subscription to listen for auth changes
 
   CartCubit(
-      this._addToCart,
-      this._removeFromCart,
-      this._updateCartItemQuantity,
-      this._getCartItems,
-      this._clearCart,
-      this._createPaymentIntent,
-      this._authCubit, // Inject AuthCubit
-      ) : super(CartInitial()) {
+    this._addToCart,
+    this._removeFromCart,
+    this._updateCartItemQuantity,
+    this._getCartItems,
+    this._clearCart,
+    this._createPaymentIntent,
+    this._authCubit, // Inject AuthCubit
+  ) : super(CartInitial()) {
     // Listen to auth state changes to clear/load the cart.
     _authSubscription = _authCubit.stream.listen((authState) {
       if (authState is AuthAuthenticated) {
@@ -89,22 +90,26 @@ class CartCubit extends Cubit<CartState> {
     final currentState = state;
     // Get the current list of items, or an empty list if the cart is initial.
     List<CartItem> currentItems = [];
-    if(currentState is CartLoaded) {
+    if (currentState is CartLoaded) {
       currentItems = currentState.items;
     }
 
     final existingItemIndex = currentItems.indexWhere(
-          (item) => item.product.id == newItem.product.id,
+      (item) => item.product.id == newItem.product.id,
     );
 
     if (existingItemIndex != -1) {
       // Item already in cart, update its quantity.
       final existingItem = currentItems[existingItemIndex];
       final updatedItem = existingItem.copyWith(
-          quantity: existingItem.quantity + newItem.quantity
+        quantity: existingItem.quantity + newItem.quantity,
       );
       // Call the database to update.
-      await _updateCartItemQuantity(updatedItem.id,updatedItem.quantity, email);
+      await _updateCartItemQuantity(
+        updatedItem.id,
+        updatedItem.quantity,
+        email,
+      );
       // Create a new list with the updated item.
       final updatedItems = List<CartItem>.from(currentItems);
       updatedItems[existingItemIndex] = updatedItem;
@@ -147,20 +152,27 @@ class CartCubit extends Cubit<CartState> {
 
     final currentState = state;
     if (currentState is CartLoaded) {
-      final itemIndex = currentState.items.indexWhere((item) => item.id == itemId);
+      final itemIndex = currentState.items.indexWhere(
+        (item) => item.id == itemId,
+      );
       if (itemIndex != -1) {
         final item = currentState.items[itemIndex];
         if (newQuantity > 0) {
           final updatedItem = item.copyWith(quantity: newQuantity);
           // NOTE: This assumes your use case now accepts an email.
-          await _updateCartItemQuantity(updatedItem.id,updatedItem.quantity, email);
+          await _updateCartItemQuantity(
+            updatedItem.id,
+            updatedItem.quantity,
+            email,
+          );
           final updatedItems = List<CartItem>.from(currentState.items);
           updatedItems[itemIndex] = updatedItem;
           emit(CartLoaded(items: updatedItems));
         } else {
           // If quantity is 0 or less, remove the item.
           await _removeFromCart(itemId, email);
-          final updatedItems = List<CartItem>.from(currentState.items)..removeAt(itemIndex);
+          final updatedItems = List<CartItem>.from(currentState.items)
+            ..removeAt(itemIndex);
           emit(CartLoaded(items: updatedItems));
         }
       }
@@ -169,14 +181,18 @@ class CartCubit extends Cubit<CartState> {
 
   Future<void> incrementQuantity(String itemId) async {
     if (state is CartLoaded) {
-      final currentQuantity = (state as CartLoaded).items.firstWhere((item) => item.id == itemId).quantity;
+      final currentQuantity = (state as CartLoaded).items
+          .firstWhere((item) => item.id == itemId)
+          .quantity;
       await _updateItemQuantity(itemId, currentQuantity + 1);
     }
   }
 
   Future<void> decrementQuantity(String itemId) async {
     if (state is CartLoaded) {
-      final currentQuantity = (state as CartLoaded).items.firstWhere((item) => item.id == itemId).quantity;
+      final currentQuantity = (state as CartLoaded).items
+          .firstWhere((item) => item.id == itemId)
+          .quantity;
       await _updateItemQuantity(itemId, currentQuantity - 1);
     }
   }
@@ -222,7 +238,6 @@ class CartCubit extends Cubit<CartState> {
       await _clearCart(email);
       emit(const CartPaymentSuccess());
       emit(const CartLoaded(items: []));
-
     } on StripeException catch (e) {
       String message = 'Payment failed: ${e.error.message}';
       if (e.error.message == "Canceled") {
@@ -236,7 +251,11 @@ class CartCubit extends Cubit<CartState> {
         loadCartItems(email); // Reload cart on failure if it wasn't loaded
       }
     } catch (e) {
-      emit(CartError('An unexpected error occurred during payment: ${e.toString()}'));
+      emit(
+        CartError(
+          'An unexpected error occurred during payment: ${e.toString()}',
+        ),
+      );
       final previousState = state;
       if (previousState is CartLoaded) {
         emit(CartLoaded(items: previousState.items));
@@ -249,7 +268,10 @@ class CartCubit extends Cubit<CartState> {
   double get cartTotalPrice {
     final currentState = state;
     if (currentState is CartLoaded) {
-      return currentState.items.fold(0.0, (sum, item) => sum + (item.product.price * item.quantity));
+      return currentState.items.fold(
+        0.0,
+        (sum, item) => sum + (item.product.price * item.quantity),
+      );
     }
     return 0.0;
   }

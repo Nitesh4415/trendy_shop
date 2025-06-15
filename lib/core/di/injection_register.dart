@@ -7,7 +7,6 @@ import '../routes/app_router.dart';
 
 @module
 abstract class RegisterModule {
-
   @preResolve
   Future<AppRouter> get appRouter async => AppRouter();
 
@@ -21,8 +20,10 @@ abstract class RegisterModule {
   Dio get dio => Dio();
 
   @lazySingleton
-  PaymentApiClient paymentApiClient(@Named('paymentBackendUrl') String backendUrl, Dio dio) {
+  PaymentApiClient paymentApiClient(
+    @Named('paymentBackendUrl') String backendUrl,
+    Dio dio,
+  ) {
     return PaymentApiClient(baseUrl: backendUrl, dio: dio);
   }
-
 }

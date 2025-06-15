@@ -17,8 +17,7 @@ class UserRepositoryImpl implements UserRepository {
     try {
       final userModels = await _remoteDataSource.getAllUsers();
       return userModels.map((model) => model.toEntity()).toList();
-    }
-    catch (e) {
+    } catch (e) {
       rethrow;
     }
   }
@@ -29,8 +28,7 @@ class UserRepositoryImpl implements UserRepository {
       final userModel = user.toModel();
       final createdUserModel = await _remoteDataSource.createUser(userModel);
       return createdUserModel.toEntity();
-    }
-    catch (e) {
+    } catch (e) {
       rethrow;
     }
   }

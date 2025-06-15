@@ -4,7 +4,6 @@ import 'package:shop_trendy/core/constants/api_constants.dart';
 import 'package:shop_trendy/core/database/database_helper.dart';
 import 'injectable.config.dart';
 
-
 final getIt = GetIt.instance;
 
 @InjectableInit(
@@ -13,8 +12,14 @@ final getIt = GetIt.instance;
   asExtension: false,
 )
 Future<void> configureDependencies(String environment) async {
-  getIt.registerSingleton<String>(ApiConstants.fakeStoreApiUrl, instanceName: 'fakeStoreApiUrl');
-  getIt.registerSingleton<String>(ApiConstants.backendBaseUrl, instanceName: 'paymentBackendUrl');
+  getIt.registerSingleton<String>(
+    ApiConstants.fakeStoreApiUrl,
+    instanceName: 'fakeStoreApiUrl',
+  );
+  getIt.registerSingleton<String>(
+    ApiConstants.backendBaseUrl,
+    instanceName: 'paymentBackendUrl',
+  );
 
   // ✅ Call top-level generated `init` function, not getIt.init!
   await init(getIt, environment: environment);

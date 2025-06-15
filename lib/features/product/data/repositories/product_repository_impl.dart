@@ -20,7 +20,6 @@ class ProductRepositoryImpl implements ProductRepository {
     }
   }
 
-
   @override
   Future<Product> getProductDetails(int id) async {
     try {
@@ -34,7 +33,9 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<List<Product>> getProductsByCategory(String category) async {
     try {
-      final productModels = await _remoteDataSource.getProductsByCategory(category);
+      final productModels = await _remoteDataSource.getProductsByCategory(
+        category,
+      );
       return productModels.map((model) => model.toEntity()).toList();
     } catch (e) {
       rethrow;

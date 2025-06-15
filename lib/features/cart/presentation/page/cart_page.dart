@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shop_trendy/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:shop_trendy/features/cart/domain/entities/cart_item.dart';
-import 'package:shop_trendy/features/order/domain/entities/order.dart' as app_order; // Alias for Order entity
+import 'package:shop_trendy/features/order/domain/entities/order.dart'
+    as app_order; // Alias for Order entity
 import 'package:shop_trendy/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:shop_trendy/features/order/domain/entities/product_order.dart';
 import 'package:shop_trendy/features/order/presentation/cubit/order_cubit/order_cubit.dart'; // Import AuthCubit to get appUser ID
-
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
@@ -25,17 +25,17 @@ class CartPage extends StatelessWidget {
       body: BlocConsumer<CartCubit, CartState>(
         listener: (context, state) {
           if (state is CartError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           } else if (state is CartPaymentSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                  content: Text('Payment successful! Order placed.')),
+                content: Text('Payment successful! Order placed.'),
+              ),
             );
             // The OrderCubit state is already updated, so we just navigate.
-            context.go(
-                '/orders'); // Navigate to order list after success
+            context.go('/orders'); // Navigate to order list after success
           }
         },
         builder: (context, state) {
@@ -54,7 +54,9 @@ class CartPage extends StatelessWidget {
                       final item = state.items[index];
                       return Card(
                         margin: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
@@ -65,7 +67,7 @@ class CartPage extends StatelessWidget {
                                 height: 80,
                                 fit: BoxFit.contain,
                                 errorBuilder: (context, error, stackTrace) =>
-                                const Icon(Icons.broken_image, size: 40),
+                                    const Icon(Icons.broken_image, size: 40),
                               ),
                               const SizedBox(width: 10),
                               Expanded(
@@ -75,18 +77,20 @@ class CartPage extends StatelessWidget {
                                     Text(
                                       item.product.title,
                                       style: const TextStyle(
-                                          fontWeight: FontWeight.bold),
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                     Text(
-                                        '\$${item.product.price.toStringAsFixed(
-                                            2)}'),
+                                      '\$${item.product.price.toStringAsFixed(2)}',
+                                    ),
                                     Row(
                                       children: [
                                         IconButton(
                                           icon: const Icon(
-                                              Icons.remove_circle_outline),
+                                            Icons.remove_circle_outline,
+                                          ),
                                           onPressed: () {
                                             context
                                                 .read<CartCubit>()
@@ -96,7 +100,8 @@ class CartPage extends StatelessWidget {
                                         Text('${item.quantity}'),
                                         IconButton(
                                           icon: const Icon(
-                                              Icons.add_circle_outline),
+                                            Icons.add_circle_outline,
+                                          ),
                                           onPressed: () {
                                             context
                                                 .read<CartCubit>()
@@ -110,10 +115,13 @@ class CartPage extends StatelessWidget {
                               ),
                               IconButton(
                                 icon: const Icon(
-                                    Icons.delete, color: Colors.red),
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
                                 onPressed: () {
                                   context.read<CartCubit>().removeItemFromCart(
-                                      item.id);
+                                    item.id,
+                                  );
                                 },
                               ),
                             ],
@@ -133,15 +141,16 @@ class CartPage extends StatelessWidget {
                           const Text(
                             'Total:',
                             style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           Text(
-                            '\$${context
-                                .read<CartCubit>()
-                                .cartTotalPrice
-                                .toStringAsFixed(2)}',
+                            '\$${context.read<CartCubit>().cartTotalPrice.toStringAsFixed(2)}',
                             style: const TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
@@ -154,8 +163,10 @@ class CartPage extends StatelessWidget {
                             _handleCheckout(context, state.items);
                           },
                           icon: const Icon(Icons.payment),
-                          label: const Text('Proceed to Checkout',
-                              style: TextStyle(fontSize: 18)),
+                          label: const Text(
+                            'Proceed to Checkout',
+                            style: TextStyle(fontSize: 18),
+                          ),
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
@@ -172,22 +183,32 @@ class CartPage extends StatelessWidget {
       ),
     );
   }
-  Future<void> _handleCheckout(BuildContext context, List<CartItem> cartItems) async {
+
+  Future<void> _handleCheckout(
+    BuildContext context,
+    List<CartItem> cartItems,
+  ) async {
     final authState = context.read<AuthCubit>().state;
     if (authState is AuthAuthenticated) {
       final userId = authState.appUser.id; // Get the user ID
 
       if (userId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User ID not available for placing order.')),
+          const SnackBar(
+            content: Text('User ID not available for placing order.'),
+          ),
         );
         return;
       }
 
-      final productsInOrder = cartItems.map((cartItem) => ProductInOrder(
-        productId: cartItem.product.id,
-        quantity: cartItem.quantity,
-      )).toList();
+      final productsInOrder = cartItems
+          .map(
+            (cartItem) => ProductInOrder(
+              productId: cartItem.product.id,
+              quantity: cartItem.quantity,
+            ),
+          )
+          .toList();
 
       final newOrder = app_order.Orders(
         userId: userId,
@@ -217,12 +238,16 @@ class CartPage extends StatelessWidget {
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('An unexpected error occurred: ${e.toString()}')),
+          SnackBar(
+            content: Text('An unexpected error occurred: ${e.toString()}'),
+          ),
         );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please log in to proceed with checkout.')),
+        const SnackBar(
+          content: Text('Please log in to proceed with checkout.'),
+        ),
       );
       context.go('/login');
     }

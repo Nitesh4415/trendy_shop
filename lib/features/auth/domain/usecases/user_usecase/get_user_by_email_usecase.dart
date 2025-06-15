@@ -14,4 +14,3 @@ class GetUserByEmailUseCase {
     return allUsers.where((user) => user.email == email).toList();
   }
 }
-

@@ -12,7 +12,7 @@ class CartRepositoryImpl implements CartRepository {
   CartRepositoryImpl(this._localDataSource);
 
   @override
-  Future<void> addToCart(CartItem item,String emailId) async {
+  Future<void> addToCart(CartItem item, String emailId) async {
     try {
       // Convert domain entity to data model for passing to data source
       await _localDataSource.saveCartItem(item, emailId);
@@ -51,12 +51,18 @@ class CartRepositoryImpl implements CartRepository {
   }
 
   @override
-  Future<void> updateCartItemQuantity(String itemId, int quantity, String emailId) async {
+  Future<void> updateCartItemQuantity(
+    String itemId,
+    int quantity,
+    String emailId,
+  ) async {
     try {
       final currentItems = await _localDataSource.getCartItems(emailId);
       final itemToUpdate = currentItems.firstWhere((item) => item.id == itemId);
       await _localDataSource.updateCartItem(
-          itemToUpdate.copyWith(quantity: quantity), emailId);
+        itemToUpdate.copyWith(quantity: quantity),
+        emailId,
+      );
     } catch (e) {
       rethrow;
     }

@@ -4,7 +4,8 @@ import 'package:shop_trendy/features/payment/data/datasources/stripe_payment_dat
 import '../../../../core/network/payment_api_client.dart';
 
 @LazySingleton(as: StripePaymentRemoteDataSource)
-class StripePaymentRemoteDataSourceImpl implements StripePaymentRemoteDataSource {
+class StripePaymentRemoteDataSourceImpl
+    implements StripePaymentRemoteDataSource {
   final PaymentApiClient _apiClient;
 
   StripePaymentRemoteDataSourceImpl(this._apiClient);

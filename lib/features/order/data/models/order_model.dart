@@ -13,5 +13,6 @@ class OrderModel with _$OrderModel {
     required List<ProductInOrderModel> products,
   }) = _OrderModel;
 
-  factory OrderModel.fromJson(Map<String, dynamic> json) => _$OrderModelFromJson(json);
+  factory OrderModel.fromJson(Map<String, dynamic> json) =>
+      _$OrderModelFromJson(json);
 }

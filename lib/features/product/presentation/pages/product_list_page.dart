@@ -95,8 +95,9 @@ class _ProductListPageState extends State<ProductListPage> {
           // This listener now only needs to handle Product-related errors.
           listener: (context, state) {
             if (state is ProductError) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(state.message)));
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
             }
           },
           builder: (context, state) {
@@ -124,7 +125,9 @@ class _ProductListPageState extends State<ProductListPage> {
               );
             }
 
-            if (products.isEmpty && !isLoadingMore && state is! ProductLoading) {
+            if (products.isEmpty &&
+                !isLoadingMore &&
+                state is! ProductLoading) {
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -146,12 +149,13 @@ class _ProductListPageState extends State<ProductListPage> {
                   child: GridView.builder(
                     controller: _scrollController,
                     padding: const EdgeInsets.all(8.0),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 8.0,
-                      mainAxisSpacing: 8.0,
-                      childAspectRatio: 0.7,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 8.0,
+                          mainAxisSpacing: 8.0,
+                          childAspectRatio: 0.7,
+                        ),
                     itemCount: products.length + (isLoadingMore ? 1 : 0),
                     itemBuilder: (context, index) {
                       if (index < products.length) {
@@ -165,9 +169,7 @@ class _ProductListPageState extends State<ProductListPage> {
                 ),
                 // The "Load More" button is a fallback for users who don't scroll.
                 if (productCubit.hasMoreProducts && !isLoadingMore)
-                  CustomPaginationControls(
-                    onLoadMore: _loadMoreProducts,
-                  ),
+                  CustomPaginationControls(onLoadMore: _loadMoreProducts),
               ],
             );
           },

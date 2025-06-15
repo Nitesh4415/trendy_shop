@@ -22,7 +22,6 @@ class OrderAllLoaded extends OrderState {
   List<Object?> get props => [currentOrder, pastOrders];
 }
 
-
 class OrderHistoryLoaded extends OrderState {
   final List<Orders> orders;
 
