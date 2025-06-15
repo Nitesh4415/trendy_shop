@@ -215,7 +215,7 @@ void main() {
 
         await pumpWidget(tester, testProducts);
 
-        // --- FIX: Use a more direct finder and tap the text itself ---
+        // Use a more direct finder and tap the text itself ---
         // The tap event will bubble up to the parent GestureDetector.
         final textFinder = find.text('Product 1');
         expect(textFinder, findsWidgets); // Ensure the widget is present

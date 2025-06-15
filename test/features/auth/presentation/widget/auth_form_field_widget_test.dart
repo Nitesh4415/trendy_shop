@@ -39,7 +39,7 @@ void main() {
         ),
       );
 
-      // FIX: Find the underlying TextField widget, which holds the obscureText property.
+      // Find the underlying TextField widget, which holds the obscureText property.
       final textField = tester.widget<TextField>(find.byType(TextField));
       // Verify that the obscureText property is set to true on the TextField.
       expect(textField.obscureText, isTrue);
@@ -59,7 +59,7 @@ void main() {
         ),
       );
 
-      // FIX: Find the underlying TextField widget.
+      // Find the underlying TextField widget.
       final textField = tester.widget<TextField>(find.byType(TextField));
       // Verify that the obscureText property is set to false (the default) on the TextField.
       expect(textField.obscureText, isFalse);
