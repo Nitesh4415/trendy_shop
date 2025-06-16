@@ -202,7 +202,7 @@ The app uses Stripe for payment processing.
 
 1. ### Clone the Repository:
 
-        git clone <your-repository-url>
+        git clone https://github.com/Nitesh4415/trendy_shop.git
         cd shop_trendy
 
 2. ### Install Dependencies:
