@@ -60,7 +60,7 @@ lib/
 ### Domain Layer
 - ***What it is:*** This is the core of the application. It contains the business logic and rules. It is completely independent of any other layer.
 
-* ### Components:
+- ***Components:***
 
 -   ***Entities:*** Plain Dart objects representing the core business models (e.g., Product, User).
 
