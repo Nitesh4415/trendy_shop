@@ -58,7 +58,7 @@ lib/
 ### The Three Layers
 
 ### Domain Layer
-- What it is: This is the core of the application. It contains the business logic and rules. It is completely independent of any other layer.
+- **What it is:** This is the core of the application. It contains the business logic and rules. It is completely independent of any other layer.
 
 - Components:
 
