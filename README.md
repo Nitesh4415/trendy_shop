@@ -1,20 +1,3 @@
-# shop_trendy
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
 # Shop Trendy - Flutter E-commerce App
    A modern, feature-rich e-commerce mobile application built with Flutter. "Shop Trendy" provides a complete shopping experience, from browsing products to secure checkout, all powered by a robust and scalable architecture.
 
@@ -54,7 +37,7 @@ samples, guidance on mobile development, and a full API reference.
 
 ### Feature-First Structure
    The project follows a feature-first directory structure. All the code related to a specific feature (like auth, product, or cart) is grouped together, with each feature containing its own presentation, domain, and data layers.
-
+```bash
 lib/
 └── features/
 └── product/
@@ -70,6 +53,7 @@ lib/
 ├── cubit/
 ├── pages/
 └── widgets/
+```
 
 ### The Three Layers
 
@@ -234,4 +218,8 @@ The app uses Stripe for payment processing.
 
         flutter test
 
-This will execute all files ending in _test.dart and provide a summary of the results.
+   This will execute all files ending in _test.dart and provide a summary of the results.
+
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
