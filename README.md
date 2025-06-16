@@ -119,24 +119,30 @@ The architecture is designed to follow the SOLID principles:
 ### Flutter Setup
 First, ensure your Flutter environment is correctly configured.
 
-flutter doctor
+      flutter doctor
 
 Address any issues reported by flutter doctor before proceeding.
 
 ### iOS Setup (macOS only)
-1. Install Xcode: Ensure you have Xcode version 16.1 or later from the Mac App Store.
+1. ## Install Xcode:
 
-2. Install CocoaPods: If not already installed, run:
+   Ensure you have Xcode version 16.1 or later from the Mac App Store.
 
-     sudo gem install cocoapods
+2. ## Install CocoaPods:
+   If not already installed, run:
+    
+       gem install cocoapods
 
-3. Install Pods: Navigate to the ios directory of the project and run:
+3. ## Install Pods:
+   Navigate to the ios directory of the project and run:
+   
+        pod install
 
-   pod install
+4. ## Open Xcode:
+    Open the Runner.xcworkspace file (not Runner.xcodeproj) in the ios directory.
 
-4. Open Xcode: Open the Runner.xcworkspace file (not Runner.xcodeproj) in the ios directory.
-
-5. Configure Signing: In Xcode, select the "Runner" target, go to the "Signing & Capabilities" tab, and select your development team.
+5. ## Configure Signing:
+   In Xcode, select the "Runner" target, go to the "Signing & Capabilities" tab, and select your development team.
 
 ### Android Setup
 1. ### Install Android Studio:
@@ -180,7 +186,7 @@ The app uses Stripe for payment processing.
 2. ### Get API Keys: 
    In your Stripe Dashboard, go to Developers > API keys. You will need your Publishable key.
 
-        Note: For testing, make sure you are using your "Test data" keys.
+      Note: For testing, make sure you are using your "Test data" keys.
 
 3. ### Update App Constants: Open lib/core/constants/app_constants.dart and replace the placeholder with your Test Publishable Key:
 
