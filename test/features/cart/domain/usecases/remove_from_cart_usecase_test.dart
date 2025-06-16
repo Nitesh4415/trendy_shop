@@ -29,7 +29,7 @@ void main() {
         // Arrange
         // Stub the repository method to complete successfully.
         when(mockCartRepository.removeFromCart(any, any)).thenAnswer((_) async {
-          return null;
+          return;
         });
 
         // Act

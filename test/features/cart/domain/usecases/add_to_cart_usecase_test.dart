@@ -40,7 +40,7 @@ void main() {
         // Arrange
         // Stub the repository method to complete successfully.
         when(mockCartRepository.addToCart(any, any)).thenAnswer((_) async {
-          return null;
+          return;
         });
 
         // Act

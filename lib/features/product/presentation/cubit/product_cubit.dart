@@ -52,8 +52,9 @@ class ProductCubit extends Cubit<ProductState> {
     final currentState = state;
     if (currentState is ProductLoaded &&
         !currentState.hasMore &&
-        !isInitialLoad)
+        !isInitialLoad) {
       return false;
+    }
 
     _isLoadingMore = true;
 

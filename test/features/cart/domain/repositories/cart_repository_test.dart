@@ -57,7 +57,7 @@ void main() {
       test('should call saveCartItem on the local data source', () async {
         // Arrange
         when(mockLocalDataSource.saveCartItem(any, any)).thenAnswer((_) async {
-          return null;
+          return;
         });
         // Act
         await repository.addToCart(tCartItem, tEmailId);
@@ -74,7 +74,7 @@ void main() {
         when(mockLocalDataSource.deleteCartItem(any, any)).thenAnswer((
           _,
         ) async {
-          return null;
+          return;
         });
         // Act
         await repository.removeFromCart(tItemId, tEmailId);
@@ -95,7 +95,7 @@ void main() {
         when(mockLocalDataSource.updateCartItem(any, any)).thenAnswer((
           _,
         ) async {
-          return null;
+          return;
         });
 
         // Act
@@ -135,7 +135,7 @@ void main() {
       test('should call clearCart on the local data source', () async {
         // Arrange
         when(mockLocalDataSource.clearCart(any)).thenAnswer((_) async {
-          return null;
+          return;
         });
         // Act
         await repository.clearCart(tEmailId);

@@ -28,7 +28,7 @@ void main() {
         // Arrange
         // Stub the repository method to complete successfully.
         when(mockCartRepository.clearCart(any)).thenAnswer((_) async {
-          return null;
+          return;
         });
 
         // Act
