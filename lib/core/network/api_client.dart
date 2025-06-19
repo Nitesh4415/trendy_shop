@@ -26,7 +26,7 @@ class ApiClient {
     Map<String, dynamic>? queryParameters,
   }) async {
     try {
-      if (dio.options.baseUrl == 'http://10.0.2.2:3000') {
+      if (dio.options.baseUrl != ApiConstants.fakeStoreApiUrl) {
         dio.options.baseUrl = ApiConstants.fakeStoreApiUrl;
       }
       final response = await dio.get(path, queryParameters: queryParameters);
@@ -40,6 +40,9 @@ class ApiClient {
 
   Future<dynamic> post(String path, Map<String, dynamic> body) async {
     try {
+      if (dio.options.baseUrl != ApiConstants.fakeStoreApiUrl) {
+        dio.options.baseUrl = ApiConstants.fakeStoreApiUrl;
+      }
       final response = await dio.post(path, data: body);
       return _handleResponse(response);
     } on DioException catch (e) {

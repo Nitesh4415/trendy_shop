@@ -1,6 +1,6 @@
 class ApiConstants {
   static const String fakeStoreApiUrl = 'https://fakestoreapi.com';
-  static const String backendBaseUrl = 'http://10.0.2.2:3000';
+  static const String backendBaseUrl = 'https://stripe-payment-server-9ctk.onrender.com';
   // Endpoint for fetching all products.
   static const String products = '/products';
 
